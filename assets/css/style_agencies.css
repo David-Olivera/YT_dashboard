@@ -1,0 +1,564 @@
+@font-face{
+    font-family: 'Taco';
+    src: url('../fonts/Raleway/static/Raleway-SemiBold.ttf');
+}
+@font-face{
+    font-family: 'Taco-regular';
+    src: url('../fonts/Raleway/static/Raleway-Regular.ttf');
+}
+@font-face{
+    font-family: 'Taco_elegante';
+    src: url('../fonts/Playfair/static/PlayfairDisplay-Regular.ttf');
+}
+@font-face{
+    font-family: 'Taco_regular_2';
+    src: url('../fonts/Barlow/Barlow-Regular.ttf');
+}
+
+.loader {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background: url('../img/load/load.gif') 50% no-repeat rgb(249,249,249);
+  opacity: .8;
+}
+/* NAV */
+#nav_agencies{
+    background: transparent;
+    padding: 1.7rem 1.6rem 1.7rem 1.6rem;
+}
+#nav_agencies .nav_icon_movil{
+    display: none;
+}
+.navbar-toggler .navbar-toggler-icon {
+    background-image: url('../img/icon/menu.png') !important;
+}
+.nav-link{
+  font-family: 'Taco_regular_2' !important;
+    color: #000;
+}
+.nav-link:hover{
+    color: #E1423B;
+    transition: .7s;
+}
+.current a{
+    color:#E1423B !important;
+}
+/* END NAV */
+
+/* BODY */
+body{
+  font-family: 'Taco_regular_2' !important;
+}
+h1{
+    font-family: 'Quicksand', sans-serif;
+    font-weight: bold !important;
+}
+ul {
+    list-style: none;
+  }
+
+hr {
+    border-color: var(--hr-color);
+    margin: 20px 0;
+  }
+.row{
+    margin: 0 !important;
+    max-width: 100vw !important;
+}
+/* END BODY */
+
+/* ANIMACIONES */
+@keyframes slidein {
+    from {
+      margin-left:100%;
+      width:300%
+    }
+  
+    to {
+     margin-left:0%;
+     width:100%;
+   }
+}
+@keyframes moveLeft {
+    from {
+      transform: translateX(-500px);
+    }
+    to {
+      transform: translateX(0px);
+    }
+}
+@keyframes moveRight {
+    from {
+      transform: translateX(500px);
+    }
+    to {
+      transform: translateX(0px);
+    }
+}
+.fast_access[data-animation="to-top"] a span:last-child {
+  transform: translateY(100%);
+}
+
+.fast_access[data-animation="to-top"] a:hover span:first-child {
+  transform: translateY(-100%);
+}
+
+.fast_access[data-animation="to-right"] a span:last-child {
+  transform: translateX(-100%);
+}
+
+.fast_access[data-animation="to-right"] a:hover span:first-child {
+  transform: translateX(100%);
+}
+
+.fast_access[data-animation="to-left"] a span:last-child {
+  transform: translateX(100%);
+}
+
+.fast_access[data-animation="to-left"] a:hover span:first-child {
+  transform: translateX(-100%);
+}
+
+/* END ANIMACIONES */
+
+/* BTNS PROPIOS */
+#form_reserva_edit .custom-select{
+  background-color: transparent !important;
+  width: 83% !important;
+  border-radius: 0px;
+  border-bottom: 1px solid #999 !important;
+  border-top: 0px;
+  border-left: 0px;
+  border-right: 0px;
+}
+#form_reserva_edit input{
+  width: 85% !important;
+  border-radius: 0px;
+  border-bottom: 1px solid #999 !important;
+}
+
+#form_reserva_edit .form-group{
+  padding-left: 1rem !important;
+  padding-right: 1.5rem !important;
+}
+
+#btnToTop {
+  display: none;
+  position: fixed;
+  bottom: 15px;
+  right: 20px;
+  z-index: 99;
+  font-size: 14px;
+  border: none;
+  outline: none;
+  background-color:#E1423B;
+  color: white;
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 4px;
+}
+#btnToTop i{
+    font-size: 20px;
+}
+
+#btnToTop:hover {
+  background-color: #ad2c26;
+  transition: 1s;
+}
+.btn-yamevi{
+    background: #E1423B !important;
+    color: #fff !important;
+}
+.btn-yamevi:hover{
+    background: #ad2c26 !important;
+    color: #fff !important;
+    transition: .8s;
+}
+
+.btn-yamevi_2{
+    background: #414380 !important;
+    color: #fff !important;
+}
+.btn-yamevi_2:hover{
+    background: #4c5191 !important;
+    color: #fff !important;
+    transition: .7s;
+}
+.btn-outline-yamevi{
+  background: #fff !important;
+  border: 1px solid #E1423B !important;
+  color: #E1423B !important;
+}
+.btn-outline-yamevi:hover{
+  background: #E1423B !important;
+  border: 1px solid #fff !important;
+  color: #fff !important;
+  transition: .7s;
+}
+.btn_animation span {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.5s;
+}
+.btn_animation span:after {
+  content: '\2708';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+.btn_animation:hover span {
+  padding-right: 25px;
+}
+.btn_animation:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+
+.btn_animation_2 span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+.btn_animation_2 span:after {
+  content: '\270B';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+.btn_animation_2:hover span {
+  padding-right: 25px;
+}
+.btn_animation_2:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+
+.fast_access {
+  display: flex;
+  justify-content: center;
+}
+.fast_access li {
+    height: 100%;
+    width: 100%;
+    padding: .5rem;
+    margin: .5rem;
+    color: #414380;
+}
+.fast_access a {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  color: #414380;
+  border: 1px solid #414380;
+  border-radius: .25rem;
+  text-align: center;
+}
+.fast_access a span {
+  transition: transform .4s ease-out;
+}
+.fast_access a span i{
+  font-size: 35px;
+}
+.fast_access a span p{
+  font-size: 13px;
+}
+.fast_access a span h5{  
+  font-size: 30px;
+}
+.fast_access a span:first-child {
+  display: inline-block;
+  padding: 10px;
+  color: #414380;
+}
+.fast_access a span:last-child {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-100%);
+}
+.fast_access i {
+  font-size: 30px;
+  color: #414380;
+}
+.fast_access a:hover span:first-child {
+  transform: translateY(100%);
+}
+.fast_access a:hover span:last-child,
+.fast_access[data-animation] a:hover span:last-child {
+  transform: none;
+}
+
+.progress_yamevi{
+  background-color: #E1423B !important ;
+}
+/* END BTNS PROPIOS*/ 
+
+/* HOME */
+.backgound_img{
+    background-image: url('../../assets/img/hero/h1_hero.jpg');
+}
+.text_home_0{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.text_home_1{
+ /* padding: 25px 50px 75px 100px;
+    top padding is 25px
+    right padding is 50px
+    bottom padding is 75px
+    left padding is 100px */
+    padding: 1.5rem 2rem 1.5rem 2.5rem;  
+}
+.text_home_1 h1{
+    font-family: 'Taco_elegante';
+    color: #E1423B;
+    font-size:54px;
+}
+.content_img_1 img{
+    width: 99%;
+}
+.content_img_1{
+    animation-duration: 2s;
+    animation-name: slidein;
+}
+
+/* END HOME */
+
+/*TRASLADOS*/
+.text_not_available{
+  color: #E1423B !important;
+}
+.ratings i {
+  font-size: 16px;
+  color: red
+}
+.content_steps{
+  border-bottom: 2px solid #E1423B;
+  padding: 0 30px 0 30px;
+  margin-left: 30px;
+  margin-right: 30px;
+}
+.content_steps h3{
+  color: #E1423B;
+}
+
+.strike-text {
+  color: red;
+  text-decoration: line-through
+}
+
+.product-image {
+  width: 100%
+}
+
+.dot {
+  height: 7px;
+  width: 7px;
+  margin-left: 6px;
+  margin-right: 6px;
+  margin-top: 3px;
+  background-color: blue;
+  border-radius: 50%;
+  display: inline-block
+}
+
+.spec-1 {
+  color: #938787;
+  font-size: 15px
+}
+.para {
+  font-size: 16px
+}
+.content_traslados_1{
+    animation-duration: 1.5s;
+    animation-name: moveLeft;
+}
+.content_traslados_2{
+    animation-duration: 1.5s;
+    animation-name: moveRight;
+}
+.card_header{
+    border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
+    padding: .75rem 1.25rem;
+    margin-bottom: 0;
+    background-color: #E1423B;
+    border-bottom: 1px solid #fff;
+}
+.card_header h4{
+    color: #fff;
+}
+.card_header h5{
+    color: #fff;
+}
+#form_reserva label{
+    font-size: 15px;
+}
+.content_btn_cuentas {
+    display: flex;
+    justify-content: center;
+    padding: .5rem;
+    align-items: flex-start;
+}
+.content_btn_cuentas button{
+    padding: .8rem 2rem .8rem 2rem;
+}
+.form-row label i{
+  color: #E1423B;
+}
+
+.content_card_result_center {
+  /*IMPORTANTE*/
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.content_card_result_center span{
+  color: #E1423B;
+}
+.content_rules_card_result i{
+  font-size: 12px;
+  color: #E1423B;
+}
+.content_rules_card_result span{
+  font-size: 12px;
+}
+.content_prices_card_resilt{
+  /*IMPORTANTE*/
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+.content_prices_results i{
+  font-size: 25px;
+  padding-bottom: .5rem;
+  color: transparent;
+}
+.content_prices_results .active{
+  font-size: 25px;
+  padding-bottom: .5rem;
+  color: #E1423B;
+}
+  /*END TRASLADOS*/
+
+  /*FOOTER*/
+footer {
+    background-image: url('../img/footer/footer_agencies.png') ;
+    bottom: 0;
+    min-height: 150px;
+    height: auto;
+    width: 100%;
+    color: #C0C1EE;
+    padding: 1rem;
+    margin-top: 4rem;
+}
+.footer-top{
+    padding-top: 1rem;
+    font-size: 15px;
+}
+.footer_title_1 p{
+    font-family: 'Taco-regular';
+    font-size: 13px;
+}
+.footer-social i{
+    padding-left: 10px;
+    padding-right: 10px;
+    color: #C0C1EE;
+}
+.footer-social i:hover{
+    color: #fff;
+    transition: .7s;
+}
+.footer-botom{
+    color: #C0C1EE;
+    font-size: 13px;
+    font-family: 'Taco-regular';
+}
+.footer-botom a{
+    color: #C0C1EE;
+    text-decoration:none !important;
+}
+.footer-botom a:hover{
+    color: #fff;
+    transition: .7s;
+}
+/*END FOOTER*/
+  
+/* RESPONSIVO */
+@media screen and (max-width: 768px) {
+    .fast_access {
+        display: block;
+        justify-content: center;
+      }
+    #nav_agencies .nav_icon{
+        text-align: right;
+        margin-right: 0;
+    }
+    #nav_agencies .nav_icon{
+        display: none;
+    }
+    #nav_agencies .nav_icon_movil{
+        display: block;
+    }
+    
+    .text_home_1 h1{
+        font-family: 'Taco_elegante';
+        color: #E1423B;
+        font-size:30px;
+    }
+    
+}
+@media screen and (max-width: 1024px) {
+
+    .fast_access li {
+        height: 100%;
+        width: 100%;
+        padding: 0;
+        margin: .4rem;
+        color: #414380;
+    }
+    #nav_agencies .nav_icon{
+        text-align: right;
+        margin-right: 0;
+    }
+    #nav_agencies .nav_icon{
+        display: none;
+    }
+    #nav_agencies .nav_icon_movil{
+        display: block;
+    }
+    #nav_agencies .nav-link{
+        font-size: 14px;
+    }
+    
+    .text_home_1 h1{
+        font-family: 'Taco_elegante';
+        color: #E1423B;
+        font-size:30px;
+    }
+    .footer-top{
+        padding-top: 1rem;
+        font-size: 12px;
+    }
+    .footer-botom{
+        font-size: 12px;
+    }
+    
+}

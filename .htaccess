@@ -1,0 +1,25 @@
+Options All -Indexes
+ErrorDocument 404 /yameviTravel/assets/error/404.html
+ErrorDocument 403 /yameviTravel/assets/error/403.html
+
+#prevenir acceso a los archivos .htaccess
+<files .htaccess>
+order allow,deny
+
+#denegar el acceso a un directorio
+deny from all
+</files>
+
+#evitar listado de directorios
+IndexIgnore *
+
+# sirve archivos foo como archivos php
+AddType application/x-httpd-php .foo
+
+# sirve archivos foo como archivos cgi
+AddType application/x-httpd-cgi .foo
+
+#opción de descargar los archivos multimedia
+AddType application/octet-stream .jpg
+AddType application/octet-stream .png
+AddType application/octet-stream .jpeg

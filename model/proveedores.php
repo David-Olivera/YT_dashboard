@@ -12,9 +12,12 @@
                     die('Error de consulta'. mysqli_error($con));
                 }
                 $json = array();
+
                 while($row = mysqli_fetch_array($result)){
+                    $md5_id_provider =  MD5($row['id_provider']);
                     $json[] = array(
                         'id_provider' => $row['id_provider'],
+                        'md5_id_provider' => $md5_id_provider,
                         'name_provider' => $row['name_provider'],
                         'name_contact' => $row['name_contact'],
                         'email_provider' => $row['email_provider'],
@@ -39,7 +42,7 @@
 
             if ($result) {
                 if (mysqli_num_rows($result) > 0) {
-                    $message = 'El REP '.$ins->{'name_provider'}.' ya se encuentran registrado.';
+                    $message = 'El Proveedor '.$ins->{'name_provider'}.' ya se encuentran registrado.';
                 }else{
                     $name_provider = $ins->{'name_provider'};
                     $name_contact = $ins->{'name_contact'};
@@ -50,6 +53,8 @@
                     $status = 1;
                     $query2 =  "INSERT INTO providers(name_provider,name_contact,last_contact,email_provider,phone_provider,register_date,status)VALUES('$name_provider','$name_contact','$last_contact','$email_provider','$phone_provider','$today',$status);";
                     $result2 = mysqli_query($con, $query2);
+                    $new_id_provider = mysqli_insert_id($con);
+                    $this->createRateForProvider($new_id_provider, $con);
                     if (!$result2) {
                         $message = "Error al registrar al Proveedor";
                     }
@@ -59,6 +64,33 @@
             }
             return json_encode(array('code' => $codestate, 'message' => $message));
 
+        }
+
+        
+    	public function createRateForProvider($id_provider, $con) {
+            $query = "SELECT * FROM rates_public ORDER BY id_zone;";
+            $result = mysqli_query($con, $query);
+            if ($result) {
+                while($row=mysqli_fetch_array($result)){
+                    $id_zone = $row['id_zone'];
+                    //COMPARTIDOS
+                    $this->insertRateProvider($id_zone, $id_provider, 'Shared', 1, $con);
+                    //PRIVADOS
+                    $this->insertRateProvider($id_zone, $id_provider, 'Private', 4, $con);
+                    $this->insertRateProvider($id_zone, $id_provider, 'Private', 6, $con);
+                    $this->insertRateProvider($id_zone, $id_provider, 'Private', 8, $con);
+                    $this->insertRateProvider($id_zone, $id_provider, 'Private', 10, $con);
+            
+                    //LUJO
+                    $this->insertRateProvider($id_zone, $id_provider, 'Luxury', 6, $con);
+
+                }
+            }
+        }
+
+        public function insertRateProvider($id_zone, $id_provider, $type_service, $num_pax ,$con){
+            $query ="INSERT INTO rates_providers(id_zone,id_provider,type_service,capacity_number) VALUES($id_zone, $id_provider, '$type_service', $num_pax);";
+            $result = mysqli_query($con, $query);
         }
 
         //Get datas
@@ -111,7 +143,7 @@
             if (isset( $ins->{'id'})) {
                 $id =  $ins->{'id'};
                 $status = 0;
-                $query = "UPDATE providers SET status = $status WHERE id_provider = $id";
+                $query = "DELETE FROM providers WHERE id_provider = $id";
                 $result = mysqli_query($con, $query);
                 if (!$result) {
                     die('Error al eliminar al proveedor');
@@ -173,11 +205,16 @@
             $query = "SELECT id_rate_provider, cost_service from rates_providers WHERE id_zone = $newid_zone AND MD5(id_provider) = '$newid_provider' AND type_service = '$newtype_service' AND capacity_number = $new_cap;";
             $result = mysqli_query($con, $query);
             $json = "";
+            $cost_service = 0.00;
+            $json = array('id_rate_provider' => null, 'cost_service'=> '0.00');
             if ($result) {
                 if (mysqli_num_rows($result) > 0) {
                     while($row = mysqli_fetch_array($result)){
+                        if (isset($row['cost_service'])) {
+                            $cost_service = $row['cost_service'];
+                        }
                         $json= array(
-                            'cost_service' => $row['cost_service'],
+                            'cost_service' => $cost_service,
                             'id_rate_provider' => $row['id_rate_provider']
                         );
                     }
@@ -229,6 +266,18 @@
                 $result = mysqli_query($con, $query);
             }
 
+        }
+
+        public function groupForDriver($obj){
+            include('../../config/conexion.php');
+            $query = "SELECT provs FROM users WHERE MD5(id_user) = '$obj';";
+            $result = mysqli_query($con, $query); 
+            $provs = "";
+            if ($result) {
+				$ins_t = mysqli_fetch_object($result);
+                $provs = $ins_t->provs;
+            }
+            return $provs;
         }
     }
 

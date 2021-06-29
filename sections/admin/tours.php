@@ -27,8 +27,8 @@ if (isset($_SESSION['id_user'])) {
         <?PHP
             include('../include/navigation.php');
         ?>
-        <div class=" d-flex justify-content-center">
-           <div class="alert alert-success alert-msg alert-dismissible w-100">
+        <div class=" d-flex justify-content-center" id="content-alert-msg">
+           <div class="alert alert-info alert-msg alert-dismissible w-100">
                 <p style="margin-bottom: 0;">
                     <input id="text-msg" type="text" class="sinbordefondo" value="">
                 </p>   

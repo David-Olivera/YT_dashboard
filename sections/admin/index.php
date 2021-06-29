@@ -1,10 +1,12 @@
 <?php
+require_once '../../config/conexion.php';
 session_start();
 if (isset($_SESSION['id_user'])) {
-  if ($_SESSION["id_role"] == 1) //Condicion admin
+  if (isset($_SESSION['id_role']) && $_SESSION["id_role"] == 1) //Condicion admin
   {
-  } else {
-    header('location: ../../login.php');
+  }
+  if(isset($_SESSION['id_role']) && $_SESSION['id_role'] == 3){
+    header('location: ../../sections/admin/servicies.php');
   }
 } else {
   header('location: ../../login.php');
@@ -28,7 +30,17 @@ if (isset($_SESSION['id_user'])) {
 <div class="wrapper">
             <?PHP
                 include('../include/navigation.php');
+                print_r('LOS DATOS DE LA SESSION ');
+                print_r($_SESSION);
             ?>
+             <div class=" d-flex justify-content-center" id="content-alert-msg">
+                <div class="alert alert-info alert-msg alert-dismissible w-100">
+                        <p style="margin-bottom: 0;">
+                            <input id="text-msg" type="text" class="sinbordefondo" value="">
+                        </p>   
+                        <button type="button" class="close" id="alert-close">&times;</button>  
+                </div>
+            </div>
             <h2 class="pb-2">Dashboard</h2>
             
             <br>

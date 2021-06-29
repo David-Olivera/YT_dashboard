@@ -480,10 +480,12 @@ $(function(){
     $(document).on('click', '#deleteImg', function() {
         if (confirm('¿Esta seguro de querer eliminar la amenidad?')) {
          let id = $('#id_amenity_img').val();
+         let name = $('#name_img').val();
          let delet = 'delete_img';
          console.log(id);
          const postData = {
              'id': id,
+             'name': name,
              'delete': delet,
          }
          $.post('../../helpers/amenidades.php', postData, function(response){

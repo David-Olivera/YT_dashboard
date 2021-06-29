@@ -5,13 +5,16 @@
             $ins = json_decode($obj);
             include('../config/conexion.php');
             $search = $ins->{'data'};
-            $today = date('Y');
-            $new_date = $today.'-01-01';
+            $today = date("Y-m-d");
+            $new_date = date("Y-m-d",strtotime($today."- 3 day"));
             if (!empty($search)) {
-                $query = "SELECT * FROM (clients AS C INNER JOIN reservations AS R ON C.id_client = R.id_client 
+                $query_p = "SET SESSION SQL_BIG_SELECTS = 1";
+                $result_p = mysqli_query($con, $query_p);
+                $query = "SELECT * FROM clients AS C INNER JOIN reservations AS R ON C.id_client = R.id_client 
                 INNER JOIN reservation_details AS D ON R.id_reservation = D.id_reservation
-                INNER JOIN agencies AS A ON R.id_agency = A.id_agency) 
-                WHERE (A.name_agency like '$search' OR R.code_invoice LIKE '$search' OR C.name_client like '%$search%') AND (R.date_register_reservation >= '$new_date');";
+                INNER JOIN agencies AS A ON R.id_agency = A.id_agency
+                WHERE ((A.name_agency = '$search') OR (R.code_invoice = '$search') OR (CONCAT_WS(' ', C.name_client, C.last_name, C.mother_lastname) LIKE  '$search%' OR
+                CONCAT_WS(' ', C.last_name, C.mother_lastname, C.name_client   ) LIKE  '$search%'  )) AND ((D.date_arrival >= '$new_date') OR (D.date_exit >= '$new_date'));";
                 $result = mysqli_query($con, $query);
                 if (!$result) {
                     die('Error de consulta'. mysqli_error($con));
@@ -64,6 +67,7 @@
                          'new_idreserva' => $newidreserva,
                          'new_typeaction' => $newtypeaction,
                          'new_trpeactionrep' => $newtypeactionrep,
+                         'query' => $query,
                          'today' => $today
                      );  
                 }
@@ -109,9 +113,11 @@
                        $newtypeaction = $provider == null ? 'insert_provider' : 'update_provider';
                       
                        $newtypeactionrep = $rep == null ? 'insert_rep' : 'update_rep';
+                       $newidreservation = md5($row['id_reservation']);
 
                         $json[] = array(
                             'id_reservation' => $row['id_reservation'],
+                            'new_id_reservation' => $newidreservation,
                             'code_invoice' => $row['code_invoice'],
                             'name_client' => $row['name_client'],
                             'transfer_destiny' => $row['transfer_destiny'],
@@ -165,8 +171,10 @@
                        $newtypeaction = $provider == null ? 'insert_provider' : 'update_provider';
                       
                        $newtypeactionrep = $rep == null ? 'insert_rep' : 'update_rep';
+                       $newidreservation = md5($row['id_reservation']);
                         $json[] = array(
                             'id_reservation' => $row['id_reservation'],
+                            'new_id_reservation' => $newidreservation,
                             'code_invoice' => $row['code_invoice'],
                             'name_client' => $row['name_client'],
                             'transfer_destiny' => $row['transfer_destiny'],
@@ -486,7 +494,40 @@
             
             mysqli_query($con, $query);
         }
-
+        public function saveExpenseForSale($obj){
+            $ins = json_decode($obj);
+            include('../config/conexion.php');
+            date_default_timezone_set('America/Cancun');
+            $today = date('Y-m-d H:i:s');
+            $taxipayment = '';
+            $service = '';
+            $charge = $ins->{'charge'};
+            $currency = $ins->{'currency'};
+            $concept = $ins->{'concept'};
+            $check_taxipay = $ins->{'check_taxipay'};
+            $taxipayment = $ins->{'taxipayment'};
+            $check_paleteo = $ins->{'check_paleteo'};
+            $id_reservation = $ins->{'id_reservation'};
+            $id_user = $ins->{'id_user'};
+            $STATUS = 0;
+            if ($ins->{'check_taxipay'} == 1) {
+                $taxipayment =  1;
+            }else{
+                $taxipayment = 0;
+            }
+            if ($ins->{'taxipayment'} == 1) {
+                $service = 'D';
+                
+            }else{
+                $service = 'A';
+            }
+            $query ="INSERT INTO expenses(expense_amount, type_currency, concept, id_reservation, id_user, date_expense, type_expense_service, taxi_payment)VALUES($charge, '$currency', '$concept',$id_reservation,$id_user,'$today','$service', '$taxipayment');";
+            $result = mysqli_query($con, $query);
+            if ($result) {
+                $STATUS = 1;
+            }
+            return $STATUS;
+        }
         public function addMessage($obj){
             $ins = json_decode($obj);
             include('../config/conexion.php');
@@ -497,7 +538,7 @@
             $id_reservation = $ins->{'id_reservation'};
             $comment = $ins->{'comment'};
             $id_user = $ins->{'id_user'};
-            $query = "INSERT INTO bitacora(comments, id_user, id_reservation, register_date) VALUES('$comment', $id_user, '$id_reservation', '$today');";
+            $query = "INSERT INTO bitacora(comments, id_user, id_reservation, register_date, status) VALUES('$comment', $id_user, $id_reservation, '$today', 0);";
             $result = mysqli_query($con, $query);
             if ($result) {
                 $statusquery = 1;

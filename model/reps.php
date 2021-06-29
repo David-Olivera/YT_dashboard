@@ -42,7 +42,7 @@
 
             if ($result) {
                 if (mysqli_num_rows($result) > 0) {
-                    $message = 'El REP '.$ins->{'name_rep'}.' ya se encuentran registrado.';
+                    $message = 'El REP con nombre '.$ins->{'name_rep'}.' '.$ins->{'last_name'}.' ya se encuentran registrado.';
                 }else{
                     $name_receptionist = $ins->{'name_rep'};
                     $last_name = $ins->{'last_name'};

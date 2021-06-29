@@ -9,9 +9,18 @@
 
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="../../assets/js/navigation.js"></script>
+<script src="../../assets/js/exchange-rate.js"></script>
+    <script src="../../assets/ckeditor/ckeditor.js"></script>
 
 <!-- Accion de btn minimizar Ménu -->
 <script>
+    $(document).ready(function() {
+        $('body').click(function(e){
+          if ( e.target.id != 'notification-icon'){
+            $("#notification-latest").hide();
+          }
+        });
+    });
     $(document).ready(function () {
         $("#sidebar").mCustomScrollbar({
             theme: "minimal"

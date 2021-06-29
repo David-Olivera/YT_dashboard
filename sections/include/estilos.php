@@ -1,6 +1,6 @@
   	
     
-    <link rel="icon" href="../../assets/img/icon/yamevIcon.png">
+    <link rel="icon" href="../../assets/img/icon/yt_n.png">
     <!-- CSS  -->
     <link rel="stylesheet" href="../../assets/css/style2.css">
 	  <!-- GOOGLE FONTS -->
@@ -16,4 +16,5 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
     
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   

@@ -11,7 +11,7 @@
                }else{
                     $id_amenidad = mysqli_real_escape_string($con, $_POST['id_amenity_img']);
         
-                    $carpeta="../img/amenidades";
+                    $carpeta="../assets/img/amenidades";
             
                     if (move_uploaded_file($nombre_archivo_temporar,"$carpeta/$name_ame_img")) {
                         $sql = "UPDATE amenities SET img = '$name_ame_img' WHERE id_amenity = '$id_amenidad';";

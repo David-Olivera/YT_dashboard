@@ -1,6 +1,8 @@
 <?php
 session_start();
+$id_user = "";
 if (isset($_SESSION['id_user'])) {
+    $id_user = $_SESSION['id_user'];
   if ($_SESSION["id_role"] == 1) //Condicion admin
   {
   } else {
@@ -28,11 +30,18 @@ if (isset($_SESSION['id_user'])) {
             include('../include/navigation.php');
         ?>
     
-        <div class=" d-flex justify-content-center">
-           <div class="alert alert-success alert-msg alert-dismissible w-100">
-                <p style="margin-bottom: 0;">
-                    <input id="text-msg" type="text" class="sinbordefondo" value="">
-                </p>   
+        <div class=" d-flex justify-content-center" id="content-alert-msg">
+           <div class="alert alert-info alert-msg alert-dismissible w-100">
+                <div class="row">
+                    <div class="pl-3 pt-2">
+                        <i class="far fa-fw fa-bell"></i>
+                    </div>
+                    <div class="p-1 w-80">
+                        <p style="margin-bottom: 0;">
+                            <input id="text-msg" type="text" class="sinbordefondo" value="">
+                        </p>   
+                    </div>
+                </div>
                 <button type="button" class="close" id="alert-close">&times;</button>  
            </div>
         </div>
@@ -55,25 +64,46 @@ if (isset($_SESSION['id_user'])) {
                     </div>
                 </div>
             </div> -->
-            <div class="col-lg-6">
-                <div>
-                    <button id="formButton" type="button" class="btn btn-success" data-toggle="modal"><i class="fas fa-plus-square"></i> Nueva agencia</button>
+            <div class="col-lg-12">
+                <div class=" pb-3">
+                        <a href="#" class="btn btn-success btn-sm"  data-toggle="modal" id="btn_dowload_report_a" data-target="#downloadConciModal">Generar Reporte</a>
                 </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-4 col-md-4">
+                <div>
+                    <button id="formButton" type="button" class="btn btn-dark" data-toggle="modal"><i class="fas fa-plus-square"></i> Nueva agencia</button>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-4">
                 <div class="form-group"> 
-                    <form class="form-inline" id="form-search"  accept-charset="UTF-8" method="get">
+                    <form class="form-inline" id="form-discount"  accept-charset="UTF-8" >
                         <div class="flex-fill mr-2">
-                            <input type="search" name="search" id="search" placeholder="ID o Nombre de agencia" class="form-control w-100" label="Search this site">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="porcentaje">%</span>
+                                </div>
+                                <input type="text" class="form-control form-control-sm " id="inp_descuento_ao" placeholder="Ingrese el numero "  aria-describedby="inp_descuento_ao" required>
+                            </div>
                         </div>
-                        <button class="btn btn-black my-2 my-sm-0" type="submit">Buscar</button>
+                        <button class="btn btn-black btn-sm my-2 my-sm-0" type="button" id="btn_save_discount" title="Guardar"><i class="fas fa-save" aria-hidden="true"></i></button>
+                        <small id="inp_descuento_ao" class="form-text text-muted">Descuento agencias opreadoras.</small>
                     </form>
                 </div>
             </div>
-            <div class="col-lg-3" id="crud-form">
+            <div class="col-lg-4 col-md-4">
+                <div class="form-group"> 
+                    <form class="form-inline" id="form-search"  accept-charset="UTF-8" >
+                        <div class="flex-fill mr-2">
+                            <input type="search" name="search" id="search" placeholder="ID o Nombre de agencia" class="form-control  form-control-sm w-100" label="Search this site">
+                        </div>
+                        <button class="btn btn-black btn-sm my-2 my-sm-0" type="submit"><i class="fas fa-search" aria-hidden="true"></i></button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6" id="crud-form">
                 <div class="card">
                     <div class="card-body">
-                        <h2>Nuevo</h2>
+                        <h3>Nuevo</h3>
                         <form role="form" id="agencyForm">
                             <input type="hidden" id="agency-id">
                             <div class="form-group">
@@ -108,7 +138,7 @@ if (isset($_SESSION['id_user'])) {
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3" id="crud-form-edit">
+            <div class="col-lg-3 col-md-6 col-sm-6" id="crud-form-edit">
                 <div class="card">
                     <div class="card-body">
                         <h2>Editar</h2>
@@ -147,10 +177,10 @@ if (isset($_SESSION['id_user'])) {
                     </div>
                 </div>
             </div>
-            <div class="col-lg-12" id="resultSearch">
+            <div class="col-lg-12 col-md-12 col-sm-12" id="resultSearch">
                     <p class="text-table">Puedes dar clic sobre cualquier columna para ordenar de manera ascendente o descendente.</p>
                     <div class="card my-3" id="result-search">
-                        <div class="card-body">
+                        <div class="card-body p-2">
                             <div class="row">
                                     <ul id="container" class="row w-100" ></ul>
                             </div>
@@ -222,9 +252,64 @@ if (isset($_SESSION['id_user'])) {
                     </div>
                 </div>
             </div>
+            
+
+            <div class="modal fade" id="modalUsersAgency" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Lista de usuarios</h5>
+                            <button type="button" class="close" id="btn_close_usersa" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class=" d-flex justify-content-center">
+                                <div class="alert alert-dismissible w-100" id="alert-msg-user">
+                                        <p style="margin-bottom: 0;">
+                                            <input id="text-msg-user" type="text" class="sinbordefond w-100 form-control-plaintext" value="">
+                                        </p>   
+                                         
+                                </div>
+                            </div>
+                            <input type="hidden" id="inp_edit_user_agency">
+                            <div id="content_users_agency">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
+    <!-- Modal -->
+    <div class="modal fade" id="electronicPurseModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="label_name_agency"></h5>
+                    <button type="button" class="close btn_cancel_balance" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert  alert-dismissible fade show" id="alert_msg" role="alert">
+                        <div id="text_alert_msg" class="mb-0">
+                            
+                        </div>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <input type="hidden" class="form-control" id="inp_id_agency" placeholder="">
+                        <input type="hidden" class="form-control" id="inp_user" value="<?php echo $id_user ?>">
+                    </div>
+                    <div id="load_electronic_purse">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <?php
     include('../include/scrips.php');
     ?>

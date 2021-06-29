@@ -35,6 +35,7 @@
 						</thead>
 						<tbody>";
 			while ($row = mysqli_fetch_assoc($result)) {
+				$name_agency ="N/A";
 				if ($row['id_role'] == 1) {
 					$newrole = 'Administrador';
 				}
@@ -47,47 +48,20 @@
 				if ($row['id_role'] == 5) {
 					$newrole = 'Usuario de Agencia';
 				}
-				$query2 = "SELECT * FROM agencies WHERE id_agency = {$row['id_agency']}";
-				$result2 = mysqli_query($con, $query2);
-				if ($result2) {
-					if (mysqli_num_rows($result2) > 0) {
-						while($row2 = mysqli_fetch_assoc($result2)){
-							if ($value == $row['id_user']) {
-								$output.="<tr user-id='{$row['id_user']}'>
-										<td>{$row['id_user']}</td>
-										<td>{$row['username']}</td>
-										<td>{$row['email_user']}</td>
-										<td>{$row2['name_agency']}</td>
-										<td>$newrole</td>
-										<td class='text-center'>
-											<a href='#' id='user-edit' class='user-edit btn btn-primary btn-sm rounded-circle' ><i class='fas fa-edit' ></i></a>
-										</td>
-										<td></td>
-								</tr>";
-							}else{
-								$output.="<tr user-id='{$row['id_user']}'>
-										<td>{$row['id_user']}</td>
-										<td>{$row['username']}</td>
-										<td>{$row['email_user']}</td>
-										<td>{$row2['name_agency']}</td>
-										<td>$newrole</td>
-										<td class='text-center'>
-											<a href='#' id='user-edit' class='user-edit btn btn-primary btn-sm ' ><i class='fas fa-edit' ></i></a>
-										</td>
-										<td class='text-center'>
-											<a href='#' id='user-delete' class='user-delete btn btn-danger btn-sm '><i class='fas fa-trash-alt'></i></a>
-										</td>
-								</tr>";
-							}
+					$query2 = "SELECT * FROM agencies WHERE id_agency like {$row['id_agency']}";
+					$result2 = mysqli_query($con, $query2);
+					if ($result2) {
+						$ins_t = mysqli_fetch_object($result2);
+						if ($row['id_agency'] && ($row['id_agency'] != 0 || $row['id_agency'] != "")) {
+							$name_agency = $ins_t->name_agency;
 						}
 					}
-				}else{
 					if ($value == $row['id_user']) {
 						$output.="<tr user-id='{$row['id_user']}'>
 								<td>{$row['id_user']}</td>
 								<td>{$row['username']}</td>
 								<td>{$row['email_user']}</td>
-								<td>Sin asignar</td>
+								<td>{$name_agency}</td>
 								<td>$newrole</td>
 								<td class='text-center'>
 									<a href='#' id='user-edit' class='user-edit btn btn-primary btn-sm ' ><i class='fas fa-edit' ></i></a>
@@ -95,25 +69,21 @@
 								<td></td>
 						</tr>";
 					}else{
-						$output.="<tr user-id='{$row['id_user']}'>
-								<td>{$row['id_user']}</td>
-								<td>{$row['username']}</td>
-								<td>{$row['email_user']}</td>
-								<td>Sin asignar</td>
-								<td>$newrole</td>
-								<td class='text-center'>
-									<a href='#' id='user-edit' class='user-edit btn btn-primary btn-sm ' ><i class='fas fa-edit' ></i></a>
-								</td>
-								<td class='text-center'>
-									<a href='#' id='user-delete' class='user-delete btn btn-danger btn-sm '><i class='fas fa-trash-alt'></i></a>
-								</td>
-						</tr>";
+							$output.="<tr user-id='{$row['id_user']}'>
+									<td>{$row['id_user']}</td>
+									<td>{$row['username']}</td>
+									<td>{$row['email_user']}</td>
+									<td>{$name_agency}</td>
+									<td>$newrole</td>
+									<td class='text-center'>
+										<a href='#' id='user-edit' class='user-edit btn btn-primary btn-sm ' ><i class='fas fa-edit' ></i></a>
+									</td>
+									<td class='text-center'>
+										<a href='#' id='user-delete' class='user-delete btn btn-danger btn-sm '><i class='fas fa-trash-alt'></i></a>
+									</td>
+							</tr>";
 					}
-
-				}
-
-			
-			} 
+			}
 			$output.="</tbody>
 				</table>";
 

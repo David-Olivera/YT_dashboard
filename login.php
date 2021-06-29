@@ -2,17 +2,9 @@
 <?php  
  session_start();  
  if (isset($_SESSION['id_user'])) {
-   if($_SESSION["id_role"]==1) //Condicion admin
+   if($_SESSION["id_role"]) //Condicion admin
      {
       header("location: sections/admin/index.php");
-     }
-     if($_SESSION["id_role"]==2) //Condicion personal
-     {
-       header("location: sections/agencias/index.php");
-     }
-     if($_SESSION["id_role"]==3) //Condicion Usuarios
-     {
-       header("location: sections/vendedor/index.php");
      }
 }else {
 }
@@ -52,11 +44,11 @@
                  </div>
                  <div class="form-group">
                     <label>Email</label>
-                    <input type="email" class="form-control" name="email" value=""  placeholder="Email" >
+                    <input type="email" class="form-control" name="email" id="email" value=""  placeholder="Email" >
                  </div>
                  <div class="form-group">
                     <label>Password</label>
-                    <input type="password" class="form-control" name="password" value="" placeholder="Password" >
+                    <input type="password" class="form-control" name="password" id="password" value="" placeholder="Password" >
                  </div>
                  <div class="form-group">
                    <a href="#"><i>Olvidaste tu contraseña?</i></a>
@@ -64,15 +56,15 @@
                  <div class="form-group">
                     <div class="row">
                        <div class="col-lg-6">
-                          <button type="submit" class="btn btn-login-colaborador btn-block">Ingresar</button>
+                          <button type="submit" class="btn btn-login-colaborador btn-block" id="btn_login">Ingresar</button>
                        </div>
                         <div class="col-lg-6">
                            <a href="../es/index.php" class="btn btn-block btn-outline-primary">Soy una agencia</a>
                         </div>
                     </div>
                  </div>
-                 <div class="form-group">
-                    <h4><?php $msg ?> </h4>
+                 
+                 <div class="form-group" id="error_msg">
                  </div>
 				<!--<div class="d-flex">
 					<a href="#">Forgot your password?</a>
@@ -82,94 +74,5 @@
         </div>
     </div>
 </body>
+    <script src="assets/js/login.js"></script>
 </html>
-<?php
-   include('config/conexion.php');
-
-   if($_SERVER["REQUEST_METHOD"] == "POST") {
-      // username and password sent from form 
-      
-      $myemail = mysqli_real_escape_string($con,$_POST['email']);
-      $mypassword = mysqli_real_escape_string($con,$_POST['password']); 
-      $newpassword = MD5($mypassword);
-      $sql = "SELECT * FROM users WHERE email_user = '$myemail' and password = '$newpassword';";
-      $result = mysqli_query($con,$sql);
-      
-      // If result matched $myusername and $mypassword, table row must be 1 row
-      if ($result) {     
-         $row = mysqli_fetch_array($result,MYSQLI_ASSOC);
-         $count = mysqli_num_rows($result);
-         if (($myemail != '') && ($newpassword !='')) {
-            if (filter_var($myemail,FILTER_VALIDATE_EMAIL)) {
-               if ($count == 1) {
-                  if ($row['password'] == $newpassword) {
-                     $_SESSION['id_user'] = $row['id_user'];
-                     $_SESSION['id_role'] = $row['id_role'];
-                     $_SESSION['username'] =  $row['username'];
-                     if($_SESSION["id_role"]==1) //Condicion admin
-                     {
-                     header("location:sections/admin/index.php");
-                     }
-                     if($_SESSION["id_role"]==2) //Condicion personal
-                     {
-                     header("location:sections/agencias/index.php");
-                     }
-                     if($_SESSION["id_role"]==3) //Condicion Usuarios
-                     {
-                     header("location:sections/vendedor/index.php");
-                     }
-                     $message = 1;
-                  }else{
-                     $message = '
-                     <div class=" d-flex justify-content-center">
-                        <div class="alert alert-danger alert-error alert-dismissible">
-                           <button type="button" class="close" data-dismiss="alert">&times;</button>
-                           <strong>Error!</strong> Verifique contraseña.
-                        </div>
-                     </div>
-                  ' ;
-                  }
-               }else{
-                  $message = '
-                     <div class=" d-flex justify-content-center">
-                        <div class="alert alert-danger alert-error alert-dismissible">
-                           <button type="button" class="close" data-dismiss="alert">&times;</button>
-                           <strong>Ups!</strong> El email o contraseña es incorrecto.
-                        </div>
-                     </div>
-                  ' ;
-               }
-            }else{
-               $message = '
-               <div class=" d-flex justify-content-center">
-                  <div class="alert alert-danger alert-error alert-dismissible">
-                     <button type="button" class="close" data-dismiss="alert">&times;</button>
-                     <strong>Ups!</strong> Email inválido.
-                  </div>
-               </div>
-            ' ;
-            }
-         }else{
-            $message = '
-               <div class=" d-flex justify-content-center">
-                  <div class="alert alert-danger alert-error alert-dismissible">
-                     <button type="button" class="close" data-dismiss="alert">&times;</button>
-                     <strong>Ups!</strong> Debe llenar todos los campos.
-                  </div>
-               </div>
-            ' ;
-         }
-      }else{
-         $message = '
-         <div class=" d-flex justify-content-center">
-            <div class="alert alert-danger alert-error alert-dismissible">
-               <button type="button" class="close" data-dismiss="alert">&times;</button>
-               <strong>Ups!</strong> El email o contraseña es incorrecto.
-            </div>
-         </div>
-      ' ;
-      }
-
-      echo $message;
-   }
-?>

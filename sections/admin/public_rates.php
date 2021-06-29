@@ -45,8 +45,8 @@ if (isset($_SESSION['id_user'])) {
         </ul>
         <div class="tab-content" id="myTabContent">           
             <div class="tab-pane fade show active pt-3" id="public" role="tabpanel" aria-labelledby="public-tab">                  
-                <div class=" d-flex justify-content-center">
-                    <div class="alert alert-success alert-msg alert-outline-coloured alert-dismissible w-100">
+                <div class=" d-flex justify-content-center" id="content-alert-msg">
+                    <div class="alert alert-info alert-msg alert-outline-coloured alert-dismissible w-100">
                             <div class="row">      
                                 <div class="pl-3 pt-2">
                                     <i class="far fa-fw fa-bell"></i>
@@ -96,7 +96,7 @@ if (isset($_SESSION['id_user'])) {
                 </div>
             </div>
             <div class="tab-pane fade pt-3" id="agencie" role="tabpanel" aria-labelledby="agencia-tab">
-                <div class=" d-flex justify-content-center">
+                <div class=" d-flex justify-content-center" id="content-alert-msg">
                     <div class="alert alert-success alert-msg-ag alert-outline-coloured alert-dismissible w-100">
                             <div class="row">      
                                 <div class="pl-3 pt-2">
@@ -142,7 +142,7 @@ if (isset($_SESSION['id_user'])) {
                 </div>
             </div>
             <div class="tab-pane fade pt-3" id="tureando" role="tabpanel" aria-labelledby="tureando-tab">
-                <div class=" d-flex justify-content-center">
+                <div class=" d-flex justify-content-center" id="content-alert-msg">
                     <div class="alert alert-success alert-msg-tu alert-outline-coloured alert-dismissible w-100">
                             <div class="row">      
                                 <div class="pl-3 pt-2">

@@ -136,7 +136,6 @@ if (isset($_SESSION['id_user'])) {
         </div>
     </div>
 
-    <script src="../../assets/ckeditor/ckeditor.js"></script>
     <script>
     
     </script>

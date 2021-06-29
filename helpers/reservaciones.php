@@ -29,6 +29,27 @@
         $req = json_encode($request);
         echo $reservas->setstatusres($req);
     }
+    //Set status reservation
+    if (isset($_POST['action']) && $_POST['action'] == 'charge_register') {
+        $request = (object) $_POST;
+        $req = json_encode($request);
+        echo $reservas->saveExpenseForSale($req);
+    }
+    if (isset($_POST['update_traslado']) && $_POST['update_traslado'] == true) {
+        $request = (object) $_POST;
+        $req = json_encode($request);
+        echo $reservas->update_traslado($req);
+    }
+    if (isset($_POST['action']) && $_POST['action'] == 'get_count_msjs') {
+        $request = (object) $_POST;
+        $req = json_encode($request);
+        echo $reservas->count_msj($req);
+    }
+    if (isset($_POST['action']) && $_POST['action'] == 'get_count_acts') {
+        $request = (object) $_POST;
+        $req = json_encode($request);
+        echo $reservas->count_acts($req);
+    }
 
 
 ?>

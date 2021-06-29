@@ -27,6 +27,8 @@ $(function(){
     $("#cancelButtonEdit").click(function(){
         $("#crud-form-edit").hide('slow');
         $("#formButton").show();
+        $('#password_edit').removeClass(' is-invalid');
+        $("#checked_pass_user_edit").prop('checked', false);
         $('#agencyForm').trigger('reset');
         document.getElementById("resultSearch").className = "col-lg-12";
     });
@@ -43,7 +45,7 @@ $(function(){
             let data = $('#search').val();
             let search = 'search';
             if (/'/.test(data)) {
-                alert('Esta ingresando caracteres no permitidos');
+                
                 $('#search').val('');
                 $('#result-search').hide('slow');
                 $("#table-data").show('slow');
@@ -93,6 +95,7 @@ $(function(){
                                                 </tr>
                                             </thead> `;
                             users.forEach(users => {
+                                
                                 if (users.role == 1) {
                                     $newrole = 'Administrador';
                                 }
@@ -101,6 +104,9 @@ $(function(){
                                 }
                                 if (users.role == 3) {
                                     $newrole = 'Vendedor';
+                                }
+                                if (users.role == 5) {
+                                    $newrole = 'Usuario de Agencia';
                                 }
                                 if (users.agencia == null || users.agencia == '' || users.agencia == 0) {
                                     $newagency = 'Sin asignar';
@@ -195,6 +201,7 @@ $(function(){
                 $('#result-search').hide();
                 $('.alert-msg').show();
                 $('#text-msg').val(json.message);
+                console.log(json.sql);
                 if (json.code == 1) {
                     loadUsers();
                 }
@@ -204,7 +211,9 @@ $(function(){
         e.preventDefault();
     });
 
-    $('#crud-form-edit').submit(function(e){  
+    $('#crud-form-edit').submit(function(e){ 
+        let checked = 0;
+        var seleccion = $("#checked_pass_user_edit")[0].checked; 
         const postDatas = {
             'id': $('#user-id').val(),
             'first_name': $('#nombre_usuario_edit').val(),
@@ -212,9 +221,35 @@ $(function(){
             'email_user': $('#email_usuario_edit').val(),
             'username': $('#username_edit').val(),
             'password': $('#password_edit').val(),
+            'status': seleccion,
             'role': $('#role_edit').val(),
             'edit': 'true',
         };
+        if (postDatas.first_name == null || postDatas.first_name.length == 0 || /^\s+$/.test(postDatas.first_name)) {
+            alert('El nombre del Usuario es un campo obligatorio.');
+            $('#nombre_agencia').focus();
+            return false;
+        }
+        if (!(/\w+([-+.']\w+)*@\w+([-.]\w+)/.test(postDatas.email_user))) {
+			alert('En necesario ingresar una dirección de correo valida.');
+			$('#email_agnecia').focus();
+			return false;  
+        }
+        if(postDatas.role == null || postDatas.role.length == 0 || /^\s+$/.test(postDatas.role) ) {
+            alert('Es necesario asignarle un rol al usuario');
+            $('#role').focus();
+			return false; 
+        }
+        
+        if(seleccion){
+            checked = 1;
+            if ((postDatas.password == null || postDatas.password.length == 0 || postDatas.password.length < 6 || /^\s+$/.test(postDatas.password) || /'/.test(postDatas.password))) {
+                $('#password_edit').addClass(" is-invalid");
+                $('#password_edit').focus();
+                return false;
+            }
+        }
+        alert(postDatas.password+' - '+postDatas.status);
         $.post('../../helpers/usuarios.php', postDatas, function(response){
             loadUsers();
             $('#useerFormEdit').trigger('reset');
@@ -223,11 +258,13 @@ $(function(){
             $('#form-search').trigger('reset');
             $('#result-search').hide();
             $('.alert-msg').show();
+            $("#checked_pass_user_edit").prop('checked', false);
             $('#text-msg').val(response);
             document.getElementById("resultSearch").className = "col-lg-12";
         });
         e.preventDefault();
     });
+
     // $('#crud-form').click(function(e){
         // e.preventDefault();
         // submitForm();
@@ -383,7 +420,7 @@ $(function(){
             $('#apellido_paterno_edit').val(user.last_name);
             $('#email_usuario_edit').val(user.email_user);
             $('#username_edit').val(user.username);
-            $('#password_edit').val(user.password);
+            // $('#password_edit').val(user.password);
             $('#role_edit').val(user.role);
             $('#user-id').val(user.id_user);
             edit = true;
@@ -415,5 +452,12 @@ $(function(){
             edit = true;
         });
     });
-
+    $(document).on('keyup', '#password_edit', function(){
+        if (!$.trim($(this).val()).length || /'/.test($(this).val()) || $(this).val().length < 6) {
+          $(this).addClass(' is-invalid');
+        } else {
+          $(this).removeClass(' is-invalid');
+          
+        }
+    });
 });

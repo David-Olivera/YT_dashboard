@@ -1,6 +1,10 @@
 *{
     font-family: 'Quicksand', sans-serif;
 }
+
+.alert-msg{
+    display: none !important;
+}
 p {
     font-family: 'Poppins', sans-serif;
     font-size: 1.1em;

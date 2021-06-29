@@ -285,6 +285,38 @@
 
             return json_encode(array('message' => $message));
         }
+        
+
+        //Change Operadora agency
+        public function setOPConf($obj){
+            $arg = json_decode($obj);
+            include('../config/conexion.php');
+            $today = $arg->{'value'};
+            $id = $arg->{'id'};
+            $sql = "SELECT * FROM agency_payment WHERE id_agency = $id";
+            $result= mysqli_query($con, $sql);
+            if (isset($result)) {
+                if (mysqli_num_rows($result) > 0) {
+                    $sql2 = "UPDATE agency_payment SET operadora = $today WHERE id_agency = $id";
+                    $result2 = mysqli_query($con, $sql2);        
+                    if (!$result) {
+                        $message = 'Lo sentimos, ocurrio un problema en la actualización del valor seleccionado';
+                    }else{
+                        $message = 'Se han guardado los cambios de configuración para la agencia seleccionada';
+                    }
+                }else{
+                    $sql2 = "INSERT INTO agency_payment(id_agency, operadora) VALUES($id ,$today)";
+                    $result2 = mysqli_query($con, $sql2);        
+                    if (!$result) {
+                        $message = 'Lo sentimos, ocurrio un problema en la actualización del valor seleccionado';
+                    }else{
+                        $message = 'Se han guardado los cambios de configuración para la agencia seleccionada';
+                    }
+                }
+            }
+
+            return json_encode(array('message' => $message));
+        }
         //Edit agnecy
         public function edit($obj){
             $ins = json_decode($obj);
@@ -355,9 +387,73 @@
             }
             if (mysqli_num_rows($result)> 0) {
                 while ($row = mysqli_fetch_array($result)) {
-                    $new_name_doc = substr($row['name_doc'],0,17);
+                    $new_name_doc = substr($row['name_doc'],0,12);
                     $json[] = array('id_doc' => $row['id_agencies_docs'], 'name_doc' => $new_name_doc, 'name_doc_complete' => $row['name_doc'], 'date_register' => $row['date_register_doc'], 'id_agency' => $row['id_agency']);
                 }
+            }
+            $jsonString = json_encode($json);
+            return $jsonString;
+        }
+
+        // Get Electronic purse Data
+        public function getElectronicPurse($obj){
+            $ins = json_decode($obj);
+            include('../config/conexion.php');
+            $id = $ins->{'id_agency'};
+            $query = "SELECT * FROM electronic_purse WHERE id_agency = $id;";
+            $json = array();
+            $result = mysqli_query($con, $query);
+            if (mysqli_num_rows($result) > 0) {
+                $fila = "0.00";
+                $agencia = "";
+                $reserva = "";
+                $user ="";
+                $query_sum = "SELECT SUM(amount_electronic) as total FROM electronic_purse WHERE id_agency = $id;";
+                $result_sum = mysqli_query($con, $query_sum);
+                if ($result_sum){
+                    $fila = mysqli_fetch_assoc($result_sum);
+                }
+                while($row = mysqli_fetch_array($result)){
+                    $id_agen = $row['id_agency'];
+                    $id_user = $row['id_user'];
+                    $id_reservation = "";
+                    $code_invoice = "";
+                    $query_agencia = "SELECT * FROM agencies WHERE id_agency = $id_agen;";
+                    $result_agencia = mysqli_query($con, $query_agencia);
+                    if ($result_agencia) {
+                        $agencia = mysqli_fetch_assoc($result_agencia);
+                    }
+                    if ($row['id_reservation'] != 0 && $row['id_reservation'] != "") {
+                        $id_res = $row['id_reservation'];
+                        $query_reservation = "SELECT * FROM reservations WHERE id_reservation = $id_res;";
+                        $result_reservation = mysqli_query($con, $query_reservation);
+                        if ($result_reservation) {
+                            $reserva = mysqli_fetch_assoc($result_reservation);
+                        }
+                        $id_reservation = $row['id_reservation'];
+                        $code_invoice = $reserva['code_invoice'];
+                    }
+                    $query_user = "SELECT * FROM users WHERE id_user = $id_user;";
+                    $result_user = mysqli_query($con, $query_user);
+                    if ($result_user) {
+                        $user = mysqli_fetch_assoc($result_user);
+                    }
+                    $json[] = array(
+                        'id_electronic' => $row['id_electronic'],
+                        'id_agency' => $row['id_agency'],
+                        'name_agency' => $agencia['name_agency'],
+                        'id_reservation'=> $id_reservation,
+                        'code_invoice' => $code_invoice,
+                        'id_user'=> $row['id_user'],
+                        'username' => $user['username'],
+                        'descripcion_electronic'=> $row['descripcion_electronic'],
+                        'amount_electronic' => $row['amount_electronic'],
+                        'sum_amount_electronic' => $fila['total'],
+                        'date_register_electronic'=> $row['date_register_electronic']
+                    );
+                }
+            }else{
+                $json="";
             }
             $jsonString = json_encode($json);
             return $jsonString;
@@ -387,6 +483,210 @@
                     </div>";
                 return $message;
             }
+        }
+
+        // Load Discount
+        public function loadDiscount($obj){
+            include('../config/conexion.php');
+            $query = "SELECT * FROM discounts WHERE status = 1;";
+            $result = mysqli_query($con, $query);
+            $new_value = "0.00";
+            if (isset($result)) {
+                $ins = mysqli_fetch_object($result);
+                if (isset($ins->amount_discounts)) {
+                    $new_value = $ins->amount_discounts;
+                }
+            }
+            return $new_value;
+        }
+
+        //Add Discount
+        public function addDiscount($obj){
+            $ins = json_decode($obj);
+            include('../config/conexion.php');
+            $status = 0;
+            $value = mysqli_real_escape_string($con, $ins->{'value'});
+            $query_status = "SELECT * FROM discounts WHERE status = 1;";
+            $result_status = mysqli_query($con, $query_status);
+            $query = "";
+            $row_cnt = mysqli_num_rows($result_status);
+            if ($row_cnt > 0) {
+                $query = "UPDATE discounts SET type_discounts = 'OPERATOR AGENCIES DISCOUNT', amount_discounts = $value, agency_operator = 1 WHERE status = 1;";
+            }else{
+                $query = "INSERT INTO discounts(type_discounts, amount_discounts, agency_operator, status)VALUES('OPERATOR AGENCIES DISCOUNT', $value, 1, 1);";
+            }
+            $result = mysqli_query($con, $query);
+            if ($result) {
+                $status = 1;
+            }
+            return $status;
+
+        }
+
+        //Get users agency
+        public function getUsersAgency($obj){
+            $ins = json_decode($obj);
+            include('../config/conexion.php');
+            $limit = 12;
+            $id = $_POST['id'];
+            if (isset($id)) {
+                $id_agency =  $id;
+            }
+            if (isset($_POST['page_no'])) {
+                $page_no = $_POST['page_no'];
+            }else{
+                $page_no = 1;
+            }
+            $offset = ($page_no-1) * $limit;
+            $query = "SELECT * FROM users  WHERE id_agency = $id and status = 1 ORDER BY id_user DESC LIMIT $offset, $limit";
+            $result = mysqli_query($con, $query);
+            $output = "";
+            $newrole ='';
+            $newoutput = '';
+            
+
+            if ($result) {	
+                if (mysqli_num_rows($result) > 0) {
+                    $output.="
+                    
+                            <table class='table table-hover table-striped table-bordered table-sm' cellspacing='0' id='tablaUsuarios'>
+                                <thead class='m-3'>
+                                    <tr >
+                                        <th>Nombre</th>
+                                        <th>Apellido</th>
+                                        <th style='width:250px;'>Email</th>
+                                        <th>Teléfono</th>
+                                        <th>Username</th>
+                                        <th class='update_users'></th>
+                                        <th></th>
+                                        <th></th>
+                                        </tr>
+                                </thead>
+                                <tbody>";
+                    while ($row = mysqli_fetch_assoc($result)) {
+                            
+                            $output.="
+                            <tr user-us='{$row['id_user']}' id='data_users_agency'>
+                                    <td><input type='text' readonly class='form-control-plaintext pl-2' id='inp_user_agency_name' value='{$row['first_name']}'></td>
+                                    <td><input type='text' readonly class='form-control-plaintext pl-2' id='inp_user_agency_last' value='{$row['last_name']}'></td>
+                                    <td style='width:30px;'><input type='text' readonly class='form-control-plaintext pl-2' id='inp_user_agency_email' value='{$row['email_user']}'></td>
+                                    <td><input type='text' readonly class='form-control-plaintext pl-2' id='inp_user_agency_phone' value='{$row['phone_user']}'></td>
+                                    <td><input type='text' readonly class='form-control-plaintext pl-2' id='inp_user_agency_username' value='{$row['username']}'></td>
+                                    <td class='text-center update_users'>
+                                        <a href='#' class=' btn btn-yamevi_2 btn-sm' id='btn_update_user'><i class='fas fa-save' aria-hidden='true'></i></a>
+                                    </td>
+                                    <td class='text-center '>
+                                        <a href='#' class=' btn btn-yamevi_2 btn-sm' id='btn_edit_user' ><i class='fas fa-edit'></i></a>
+                                        <a href='#' class=' btn btn-yamevi_2 btn-sm' id='btn_cancel_edit_user'><i class='fas fa-times text-danger'></i></a>
+                                    </td>
+                                    <td class='text-center '>
+                                        <a href='#' class=' btn btn-yamevi btn-sm' id='btn_delete_user'  user-name='{$row['first_name']}' user-last='{$row['last_name']}' ><i class='fas fa-trash-alt'></i></a>
+                                    </td>
+                                    
+                            </tr>";
+                    
+                    } 
+                    $output.="</tbody>
+                        </table>";
+
+                    $sql = "SELECT * FROM users  WHERE id_agency = $id and status = 1 ORDER BY id_user desc";
+                    $records = mysqli_query($con, $sql);
+                    $totalRecords = mysqli_num_rows($records);
+                    $totalPage = ceil($totalRecords/$limit);
+                    $output.="<ul class='pagination' style='margin:20px 0'>";
+                    for ($i=1; $i <= $totalPage ; $i++) { 
+                    if ($i == $page_no) {
+                        $active = "active";
+                        $btn = "btn-yamevi_2";
+                    }else{
+                        $active = "";
+                        $btn = "";
+                    }
+                        $output.="<li class='page-item $active'><a class='page-link $btn' id='$i' href=''>$i</a></li>";
+                    }
+                    $output .= "</ul>";
+
+                    return $output;
+
+                }else{
+                    $output.="
+                    <div class='w-100 h-100'>
+                        <p>No se encontro ningún usuario registrado</p>
+                    </div>";
+                    return $output;
+                }
+            }else{
+                $output.="
+                <div class='w-100 h-100'>
+                    <p>No se encontro ningún usuario registrado</p>
+                </div>";
+                return $output;
+            }
+
+        }
+
+        //Update user agency
+        public function updateUsersAgency($obj){
+            $ins = json_decode($obj);
+            include('../config/conexion.php');
+            $id = mysqli_real_escape_string($con, $ins->{'id'});
+            $val_name = mysqli_real_escape_string($con, $ins->{'val_name'});
+            $val_last = mysqli_real_escape_string($con, $ins->{'val_last'});
+            $val_email = mysqli_real_escape_string($con, $ins->{'val_email'});
+            $val_phone = mysqli_real_escape_string($con, $ins->{'val_phone'});
+            $val_username = mysqli_real_escape_string($con, $ins->{'val_username'});
+            $stauts = 0;
+            $query = "UPDATE users SET first_name = '$val_name', last_name = '$val_last', email_user = '$val_email', phone_user = '$val_phone', username = '$val_username' WHERE id_user like $id;";
+            $result = mysqli_query($con, $query);
+            if($result){
+                $status = 1;
+            }
+            return $status;
+
+        }
+
+        public function deleteUserAgency($obj){
+            $ins = json_decode($obj);
+            include('../config/conexion.php');
+            $id = mysqli_real_escape_string($con, $ins->{'id'});
+            $status =0;
+            //$query = "UPDATE users SET status = 0 WHERE id_user like $id;";
+            $query = "DELETE FROM users WHERE id_user like $id;";
+            $result = mysqli_query($con, $query);
+            if ($result) {
+                $status = 1;
+            }
+            return $status;
+        }
+
+        public function addBalanceAgency($obj){
+            $ins = json_decode($obj);
+            include('../config/conexion.php');
+            $today = date('Y-m-d H:i:s');
+            $status = 0;
+            $id_user =  mysqli_real_escape_string($con, $ins->{'id_user'});
+            $id_agency =  mysqli_real_escape_string($con, $ins->{'id_agency'});
+            $motivo =  mysqli_real_escape_string($con, $ins->{'motivo'});
+            $monto =  mysqli_real_escape_string($con, $ins->{'monto'});
+            $query = "INSERT INTO electronic_purse(id_agency,id_user,descripcion_electronic,amount_electronic,date_register_electronic) VALUES($id_agency, $id_user, '$motivo', $monto, '$today');";
+            $result = mysqli_query($con, $query);
+            if ($result) {
+                $status = 1;
+            }
+            return $status;
+        }
+
+        public function deleteBalanceAgency($obj){
+            $ins = json_decode($obj);
+            include('../config/conexion.php');
+            $id_electronic =  mysqli_real_escape_string($con, $ins->{'id_electronic'});
+            $status = 0;
+            $query = "DELETE FROM electronic_purse WHERE id_electronic = $id_electronic;";
+            $result = mysqli_query($con, $query);
+            if ($result) {
+                $status = 1;
+            }
+            return $status;
         }
     }
 ?>

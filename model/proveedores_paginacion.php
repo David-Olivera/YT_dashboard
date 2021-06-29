@@ -12,7 +12,7 @@
 	    $page_no = 1;
 	}
 	$offset = ($page_no-1) * $limit;
-	$query = "SELECT * FROM providers WHERE status = 1 ORDER BY id_provider ASC LIMIT $offset, $limit";
+	$query = "SELECT * FROM providers WHERE status = 1 ORDER BY id_provider desc LIMIT $offset, $limit";
 	$result = mysqli_query($con, $query);
 	$output = "";
 	$newrole ='';

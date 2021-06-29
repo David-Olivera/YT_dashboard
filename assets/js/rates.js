@@ -122,8 +122,8 @@ $(function(){
                                                 <td class='align-middle'>$ ${zones.compartido_rt}</td>
                                                 <td class='align-middle'>$ ${zones.compartido_ow_premium}</td>
                                                 <td class='align-middle'>$ ${zones.compartido_rt_premium}</td>
-                                                <td class='align-middle'><small><strong>1-6</strong> </small>$ ${zones.lujo_ow_1} <br/> <small><strong>1-8</strong> </small>$ ${zones.lujo_ow_2}</td>
-                                                <td class='align-middle'><small><strong>1-6</strong> </small>$ ${zones.lujo_rt_1} <br/> <small><strong>1-8</strong> </small>$ ${zones.lujo_rt_2}</td>
+                                                <td class='align-middle'><small><strong>1-6</strong> </small>$ ${zones.lujo_ow_1} </td>
+                                                <td class='align-middle'><small><strong>1-6</strong> </small>$ ${zones.lujo_rt_1} </td>
                                                 <td class='align-middle'>
                                                 <a href="#" class="zone-item-pu" ><i class="fas fa-edit" ></i></a></li>
                                                 </td>
@@ -244,8 +244,8 @@ $(function(){
                                                 <td class='align-middle'>$ ${zones.compartido_rt}</td>
                                                 <td class='align-middle'>$ ${zones.compartido_ow_premium}</td>
                                                 <td class='align-middle'>$ ${zones.compartido_rt_premium}</td>
-                                                <td class='align-middle'><small><strong>1-6</strong> </small>$ ${zones.lujo_ow_1} <br/> <small><strong>1-8</strong> </small>$ ${zones.lujo_ow_2}</td>
-                                                <td class='align-middle'><small><strong>1-6</strong> </small>$ ${zones.lujo_rt_1} <br/> <small><strong>1-8</strong> </small>$ ${zones.lujo_rt_2}</td>
+                                                <td class='align-middle'><small><strong>1-6</strong> </small>$ ${zones.lujo_ow_1} </td>
+                                                <td class='align-middle'><small><strong>1-6</strong> </small>$ ${zones.lujo_rt_1} </td>
                                                 <td class='align-middle'>
                                                 <a href="#" class="zone-item-ag" ><i class="fas fa-edit" ></i></a></li>
                                                 </td>
@@ -366,8 +366,8 @@ $(function(){
                                                 <td class='align-middle'>$ ${zones.compartido_rt}</td>
                                                 <td class='align-middle'>$ ${zones.compartido_ow_premium}</td>
                                                 <td class='align-middle'>$ ${zones.compartido_rt_premium}</td>
-                                                <td class='align-middle'><small><strong>1-6</strong> </small>$ ${zones.lujo_ow_1} <br/> <small><strong>1-8</strong> </small>$ ${zones.lujo_ow_2}</td>
-                                                <td class='align-middle'><small><strong>1-6</strong> </small>$ ${zones.lujo_rt_1} <br/> <small><strong>1-8</strong> </small>$ ${zones.lujo_rt_2}</td>
+                                                <td class='align-middle'><small><strong>1-6</strong> </small>$ ${zones.lujo_ow_1} </td>
+                                                <td class='align-middle'><small><strong>1-6</strong> </small>$ ${zones.lujo_rt_1} </td>
                                                 <td class='align-middle'>
                                                 <a href="#" class="zone-item-tu" ><i class="fas fa-edit" ></i></a></li>
                                                 </td>

@@ -3,7 +3,7 @@
     if (isset($_POST['id_reservation'])) {
         $id_reservation = $_POST['id_reservation'];
         $id_user = $_POST['id_user'];
-        $query_messages = "SELECT * FROM bitacora AS B INNER JOIN users AS U ON B.id_user = U.id_user WHERE B.id_reservation = '$id_reservation' ORDER BY B.register_date asc   ;";
+        $query_messages = "SELECT * FROM bitacora AS B INNER JOIN users AS U ON B.id_user = U.id_user WHERE MD5(B.id_reservation) = '$id_reservation' ORDER BY B.register_date asc   ;";
         $result_message = mysqli_query($con, $query_messages);
         if ($result_message) {
             if (mysqli_num_rows($result_message) > 0) {

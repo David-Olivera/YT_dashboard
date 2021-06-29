@@ -33,4 +33,16 @@
         $req = json_encode($request);
         echo $servicio->addMessage($req);
     }
+    //Set status reservation NO IDENTIFICADO
+    if (isset($_POST['action']) && $_POST['action'] == 'charge_register') {
+        $request = (object) $_POST;
+        $req = json_encode($request);
+        echo $servicio->saveExpenseForSale($req);
+    }
+    //Get all msjs
+    if (isset($_POST['action']) && $_POST['action'] == 'get_all_msjs') {
+        $request = (object) $_POST;
+        $req = json_encode($request);
+        echo $servicio->getAllMsjs($req);
+    }
 ?>

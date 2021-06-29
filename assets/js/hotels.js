@@ -61,13 +61,21 @@ $(function(){
                 beforeSend: function(){
                     let template = '';
                     template += `
-                    <div class="col-lg-4 col-md-3">
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <img src="../../img/load.gif" alt="Italian Trulli">
-                    </div>
-                    <div class="col-lg-4 col-md-3">
-                    </div>
+                        <div class="col-lg-4 col-md-3">
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="spinner-grow text-dark" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div class="spinner-grow text-secondary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div class="spinner-grow text-dark" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-3">
+                        </div>
                         
                     `;
                     

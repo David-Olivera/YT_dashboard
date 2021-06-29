@@ -95,7 +95,7 @@ $(function(){
                 }
             },
             success: function(res){
-                const nav_res = JSON.parse(res);
+                var nav_res = JSON.parse(res);
                 let lang = "";
                 if (nav == 'yt-es' || nav == "tu-es") {
                     lang = "Carta en Español";

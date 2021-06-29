@@ -1,9 +1,13 @@
 $(function(){
     $('#sidebar, #content').toggleClass('active');
+    $('.alert-msg').hide();
     let edit = false;
     $('#result-search').hide();
     $('#fecha_end').hide();
-    loadReservations();
+    $('#content_taxipayment').hide();
+    $('#alert-msg-s').hide();
+    $('#alert-msg-o').hide();
+    loadReservations(tab ="LLEGADA", type_search = "",data_search = "", f_llegada = "", f_salida = "");
     let id = getParameterByName('reservation');
     loadMessagesReservation(id);
     $(document).ready(function(){
@@ -11,6 +15,87 @@ $(function(){
             loadMessagesReservation(id);
         }
         setInterval(load, 1000);
+    });
+    
+    // DESCARGAR 
+    $('#content_filter_agency_s').hide();
+    $('#content_filter_zone_s').hide();
+    $('#content_filter_type_service_s').hide();
+    $('#content_filter_date_s').hide();
+    $('#content_filter_provider_o').hide();
+
+      
+    // datepicker
+    $( function() {        
+        var $datepicker2 = $( "#datepicker_end" );
+        var d = new Date();
+        d.setDate(d.getDate() - 3);
+        $('#datepicker_star').datepicker( {
+            language: 'es',
+            onSelect: function(fecha) {
+                $datepicker2.datepicker({   
+                    language: 'es',       
+                    minDate: new Date(),
+
+                });
+                $datepicker2.datepicker("option", "disabled", false);
+                $datepicker2.datepicker('setDate', null);
+                $datepicker2.datepicker("option", "minDate", fecha); 
+            }
+        });
+        $.datepicker.regional['es'] = {
+            closeText: 'Cerrar',
+            prevText: '<Ant',
+            nextText: 'Sig>',
+            currentText: 'Hoy',
+            monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+            monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+            dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+            dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Juv', 'Vie', 'Sáb'],
+            dayNamesMin: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'],
+            weekHeader: 'Sm',
+            dateFormat: 'yy-mm-dd',
+            firstDay: 1,
+            isRTL: false,
+            showMonthAfterYear: false,
+            yearSuffix: ''
+          };
+          $.datepicker.setDefaults($.datepicker.regional['es']);
+    });
+    // datepicker
+    $( function() {        
+            var $datepicker2 = $( ".datepicker_end" );
+            $('.datepicker_star').datepicker( {
+                language: 'es',
+                onSelect: function(fecha) {
+                    $datepicker2.datepicker({   
+                        language: 'es',       
+                        minDate: new Date(),
+    
+                    });
+                    $datepicker2.datepicker("option", "disabled", false);
+                    $datepicker2.datepicker('setDate', null);
+                    $datepicker2.datepicker("option", "minDate", fecha); 
+                }
+            });
+            $.datepicker.regional['es'] = {
+                closeText: 'Cerrar',
+                prevText: '<Ant',
+                nextText: 'Sig>',
+                currentText: 'Hoy',
+                monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+                monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+                dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Juv', 'Vie', 'Sáb'],
+                dayNamesMin: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'],
+                weekHeader: 'Sm',
+                dateFormat: 'yy-mm-dd',
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: false,
+                yearSuffix: ''
+              };
+              $.datepicker.setDefaults($.datepicker.regional['es']);
     });
     // Btn cancelar
     $('#cancelButton').on("click", function(e){
@@ -45,811 +130,31 @@ $(function(){
     });
      // Buscar reserva 
      $('#form-search').submit(function(e){
-        let data = $('#search').val();
-            
-        if (data == null || data.length == 0 || /^\s+$/.test(data)) {
-            alert('Debe ingresar algun nombre o ID.');
-            $('#search').focus();
-            return false;
+        let search = $('#search').val();
+        let type_search = "";
+        if (search == null || search.length == 0 || /^\s+$/.test(search)) {
+          $('#search').addClass(" is-invalid");
+          $('#search').focus();
+          return false;
         }
-        if($('#search').val()) {
-            let search = 'search';
-            const postData = {
-                'data': data,
-                'search': search,
-            }
-            $.ajax({
-                url:'../../helpers/servicios.php',
-                type:'POST',
-                data:postData,
-                beforeSend: function(){
-                    let template = '';
-                    template += `
-                    <div class="col-lg-4 col-md-3">
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="spinner-grow text-dark" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                        <div class="spinner-grow text-secondary" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                        <div class="spinner-grow text-dark" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-3">
-                    </div>  
-                    `;
-                    $('#container').html(template);
-                    $("#table-data").hide('slow');
-                    $('#result-search').show('slow');
-                },
-                success: function(response){
-                    $('#search').val('');
-                    if (!response.error) {
-                        let reservas = JSON.parse(response);
-                        if (reservas == '') {  
-                            let template = '';
-                            template += `
-                                <div class='col-lg-11 pt-2'>
-                                    <h6 class="p-2 font-weight-bold"> Búsqueda por ID o Cliente ${data} </h6>  
-                                </div>
-                                <div class='col-lg-1 pt-2 text-right'>
-                                    <a href="#" class='btn btn-black btn-sm' id='cerrar_results'>X</a>
-                                </div>
-                                <div class="col-lg-12 pt-3">
-                                    <br/>
-                                    <p>No se encontro ningún servicio programado que coincida.</p>
-                                </div>
-                                ` ;
-                                $('#container').html(template);
-                                $('#hotel-result').show();
-                        }else{
-                            let template = '';
-                            template += `
-                                    <div class='col-lg-11 pt-2'>
-                                        <h6 class="p-2 font-weight-bold"> Búsqueda por ID o Cliente ${data} </h6>   
-                                    </div>
-                                    <div class='col-lg-1 pt-2 text-right'>
-                                        <a href="#" class='btn btn-black btn-sm' id='cerrar_results'>X</a>
-                                    </div>
-                                    <table class='table table-hover table-bordered table-sm' cellspacing='0' id='tablaAmenidades'>
-                                        <thead class='thead-light'>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>ID</th>
-                                                <th>Cliente</th>
-                                                <th>Destino</th>
-                                                <th>Servicio</th>
-                                                <th>Traslado</th>
-                                                <th>Fecha Llegada</th>
-                                                <th>Hora Llegada</th>
-                                                <th>Fecha Salida</th>
-                                                <th>Hora Salida</th>
-                                                <th>Total</th>
-                                                <th>Metodo pago</th>
-                                                <th>Estado</th>
-                                                <th>Proveedor</th>
-                                                <th>REP</th>
-                                                <th></th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                    <tbody> `;
-                            reservas.forEach(reservas => {       
-                                $newtype = '';
-                                $newstatus = ``;
-                                $newpayment = ``;
-                                $currency = '';
-                                $newdateArrvial = '';
-                                $newtimeArrival = '';
-                                $newdateExit = '';
-                                $newtimeExit = '';
-                                if (reservas.date_arrival == null || reservas.date_arrival == '') { $newdateArrvial= ''; } else{ $newdateArrvial = reservas.date_arrival;}
-                                if (reservas.time_arrival == null || reservas.time_arrival == '') { $newtimeArrival= ''; } else{ $newtimeArrival = reservas.time_arrival + ' Hrs';}
-                                if (reservas.date_exit == null || reservas.date_exit == '') { $newdateExit= ''; }else{ $newdateExit = reservas.date_exit;}
-                                if (reservas.time_exit == null || reservas.time_exit == '') { $newtimeExit= ''; } else{ $newtimeExit = reservas.time_exit + ' Hrs';}
-                                switch (reservas.method_payment) {
-                                    case 'oxxo':
-                                        $newnamepay = "OXXO";
-                                        break;
-                                    case 'transfer':
-                                        $newnamepay = "TRANSFERENCIA";
-                                        break;
-                                    case 'airport':
-                                        $newnamepay = "AEROPUERTO";
-                                        break;
-                                    case 'paypal':
-                                        $newnamepay = "PAYPAL";
-                                        break;
-                                    case 'card':
-                                        $newnamepay = "TARJETA";
-                                        break;
-                                    case 'deposit':
-                                        $newnamepay = "DEPOSITO";
-                                        break;
-                                }
-                                switch (reservas.status_reservation) {
-                                    case 'RESERVED':
-                                        $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                            <option value='${reservas.status_reservation}'>${reservas.status_reservation}</option>
-                                            <option value='COMPLETED'>COMPLETED</option>
-                                            <option value='NO SHOW'>NO SHOW</option>
-                                            <option value='CANCELLED'>CANCELLED</option>
-                                            <option value='REFUNDED'>REFUNDED</option>
-                                        </select>`;
-                                        break;
-                                    case 'COMPLETED':
-                                        $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                            <option value='{${reservas.status_reservation}}'>${reservas.status_reservation}</option>
-                                            <option value='RESERVED'>RESERVED</option>
-                                            <option value='NO SHOW'>NO SHOW</option>
-                                            <option value='CANCELLED'>CANCELLED</option>
-                                            <option value='REFUNDED'>REFUNDED</option>
-                                        </select>`;
-                                        break;
-                                    case 'NO SHOW':
-                                        $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                            <option value='{${reservas.status_reservation}}'>${reservas.status_reservation}</option>
-                                            <option value='RESERVED'>RESERVED</option>
-                                            <option value='COMPLETED'>COMPLETED</option>
-                                            <option value='CANCELLED'>CANCELLED</option>
-                                            <option value='REFUNDED'>REFUNDED</option>
-                                        </select>`;
-                                        break;
-                                    case 'CANCELLED':
-                                        $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                            <option value='{${reservas.status_reservation}}'>${reservas.status_reservation}</option>
-                                            <option value='RESERVED'>RESERVED</option>
-                                            <option value='COMPLETED'>COMPLETED</option>
-                                            <option value='NO SHOW'>NO SHOW</option>
-                                            <option value='REFUNDED'>REFUNDED</option>
-                                        </select>`;
-                                        break;
-                                    case 'REFUNDED':
-                                        $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                            <option value='{${reservas.status_reservation}}'>${reservas.status_reservation}</option>
-                                            <option value='RESERVED'>RESERVED</option>
-                                            <option value='COMPLETED'>COMPLETED</option>
-                                            <option value='NO SHOW'>NO SHOW</option>
-                                            <option value='CANCELLED'>CANCELLED</option>
-                                        </select>`;
-                                        break;
-                                    default:
-                                        $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                            <option value='deposit'>Sin asignar</option>
-                                            <option value='RESERVED'>RESERVED</option>
-                                            <option value='COMPLETED'>COMPLETED</option>
-                                            <option value='NO SHOW'>NO SHOW</option>
-                                            <option value='CANCELLED'>CANCELLED</option>
-                                            <option value='REFUNDED'>REFUNDED</option>
-                                        </select>`;
-                                        break;
-                                }
-                                switch (reservas.method_payment) {
-                                    case 'oxxo':
-                                        $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                            <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                            <option value='transfer'>TRANSFERENCIA</option>
-                                            <option value='airport'>AEROPUERTO</option>
-                                            <option value='paypal'>PAYPAL</option>
-                                            <option value='card'>TARJETA</option>
-                                            <option value='deposit'>DEPOSITO</option>
-                                        </select>`;
-                                        break;
-                                    case 'transfer':
-                                        $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                        <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                            <option value='oxxo'>OXXO</option>
-                                            <option value='airport'>AEROPUERTO</option>
-                                            <option value='paypal'>PAYPAL</option>
-                                            <option value='card'>TARJETA</option>
-                                            <option value='deposit'>DEPOSITO</option>
-                                        </select>`;
-                                        break;
-                                    case 'airport':
-                                        $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>                                    
-                                            <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                            <option value='oxxo'>OXXO</option>
-                                            <option value='transfer'>TRANSFERENCIA</option>
-                                            <option value='paypal'>PAYPAL</option>
-                                            <option value='card'>TARJETA</option>
-                                            <option value='deposit'>DEPOSITO</option>
-                                        </select>`;
-                                        break;
-                                    case 'paypal':
-                                        $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                        <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                            <option value='oxxo'>OXXO</option>
-                                            <option value='transfer'>TRANSFERENCIA</option>
-                                            <option value='airport'>AEROPUERTO</option>
-                                            <option value='card'>TARJETA</option>
-                                            <option value='deposit'>DEPOSITO</option>
-                                        </select>`;
-                                        break;
-                                    case 'card':
-                                        $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                        <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                            <option value='oxxo'>OXXO</option>
-                                            <option value='transfer'>TRANSFERENCIA</option>
-                                            <option value='airport'>AEROPUERTO</option>
-                                            <option value='paypal'>PAYPAL</option>
-                                            <option value='deposit'>DEPOSITO</option>
-                                        </select>`;
-                                        break;
-                                    case 'deposit':
-                                        $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                        <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                            <option value='oxxo'>OXXO</option>
-                                            <option value='transfer'>TRANSFERENCIA</option>
-                                            <option value='airport'>AEROPUERTO</option>
-                                            <option value='paypal'>PAYPAL</option>
-                                            <option value='card'>TARJETA</option>
-                                        </select>`;
-                                        break;
-                                    default:
-                                        $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                            <option value='deposit'>Sin asignar</option>
-                                            <option value='deposit'>DEPOSITO</option>
-                                            <option value='oxxo'>OXXO</option>
-                                            <option value='transfer'>TRANSFERENCIA</option>
-                                            <option value='airport'>AEROPUERTO</option>
-                                            <option value='paypal'>PAYPAL</option>
-                                            <option value='card'>TARJETA</option>
-                                        </select>`;
-                                        break;
-                                }
-                                if (reservas.type_transfer == 'SEN/AH' ) {
-                                    $newtype = 'Aeorpuerto - Hotel ';
-                                }
-                                if (reservas.type_transfer == 'SEN/HA' ) {
-                                    $newtype = 'Hotel - Aeorpuerto ';
-                                }
-                                if (reservas.type_transfer == 'RED' ) {
-                                    $newtype = 'Redondo';
-                                }
-                                if (reservas.type_transfer == 'REDHH' ) {
-                                    $newtype = 'Hotel - Hotel ';
-                                }
-                                if (reservas.type_transfer == 'SEN/HH' ) {
-                                    $newtype = 'Hotel - Hotel ';
-                                }
-                                $total = reservas.total_cost - reservas.agency_commision;
-                                if (reservas.type_currency == 'RED') {
-                                    $total = (reservas.total_cost - reservas.agency_commision) / 2;
-                                }
-                                if (reservas.type_currency == 'mx') {
-                                    $currency = 'MXN';
-                                }
-                                if (reservas.type_currency == 'us') {
-                                    $currency = 'USD';
-                                }
-                                if (reservas.type_currency == 'pt') {
-                                    $currency = 'USD';
-                                }
-                                if (reservas.date_arrival == reservas.today) {
-                                    template += `
-                                                <tr> 
-                                                    <td colspan = "17" style="background: #3F80EA; color: #fff;">L L E G A D A</td>
-                                                </tr>
-                                                <tr reserva-id='${reservas.id_reservation}'>
-                                                        <td>${reservas.id_reservation}</td>
-                                                        <td class="font-weight-bold">${reservas.code_invoice}</td>
-                                                        <td>${reservas.name_client}</td>
-                                                        <td>${reservas.transfer_destiny}</td>
-                                                        <td>${reservas.type_service}</td>
-                                                        <td>${$newtype}</td>
-                                                        <td class="font-weight-bold">${$newdateArrvial}</td>
-                                                        <td class="font-weight-bold">${$newtimeArrival}</td>
-                                                        <td>${$newdateExit}</td>
-                                                        <td>${$newtimeExit}</td>
-                                                        <td>${$total + ' ' + $currency} </td>
-                                                        <td>${$newpayment}</td>
-                                                        <td>${$newstatus}</td>
-                                                        <td><a href='#' id='select_provider' datare='${reservas.id_reservation}'  data='${reservas.provider}' datatag='entrada' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_typeaction}' dataservice='A' data-toggle='modal' data-target='#providerModal'> ${reservas.provider}</a></td>
-                                                        <td><a href='#' id='select_rep' data-toggle='modal'  datarep='${reservas.rep}' datatag='entrada' datare='${reservas.id_reservation}' dataservice='A' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_trpeactionrep}' data-target='#repModal'> ${reservas.rep}</a></td>
-                                                        <td class='text-center p-2'>
-                                                        <a   href='reservation_profile.php?reservation=${reservas.new_id_reservation}&coinv=${reservas.code_invoice}' target='_blank' title='ver detalles' id='view_details'><i class='far fa-eye'></i></a>
-                                                        </td>
-                                                        <td class='text-center p-2'>
-                                                            <a href='#' id='reserva-pay' title='Conciliar' class=''><i class='fas fa-dollar-sign'></i></a>
-                                                        </td>
-                                                </tr>`;    
-                                }else if (reservas.date_exit == reservas.today) {
-                                    template += `
-                                                <tr> 
-                                                    <td colspan = "17" style="background: #495057; color: #fff;">S A L I D A </td>
-                                                </tr>
-                                                <tr reserva-id='${reservas.id_reservation}'>
-                                                        <td>${reservas.id_reservation}</td>
-                                                        <td class="font-weight-bold">${reservas.code_invoice}</td>
-                                                        <td>${reservas.name_client}</td>
-                                                        <td>${reservas.transfer_destiny}</td>
-                                                        <td>${reservas.type_service}</td>
-                                                        <td>${$newtype}</td>
-                                                        <td>${$newdateArrvial}</td>
-                                                        <td>${$newtimeArrival} </td>
-                                                        <td class="font-weight-bold">${$newdateExit}</td>
-                                                        <td class="font-weight-bold">${$newtimeExit}</td>
-                                                        <td>${$total + ' ' + $currency} </td>
-                                                        <td>${$newpayment}</td>
-                                                        <td>${$newstatus}</td>
-                                                        <td><a href='#' id='select_provider' datare='${reservas.id_reservation}'  data='${reservas.provider_salida}' datatag='salida' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_typeaction}' dataservice='D' data-toggle='modal' data-target='#providerModal'> ${reservas.provider_salida}</a></td>
-                                                        <td><a href='#' id='select_rep' data-toggle='modal'  datarep='${reservas.rep_salida}' datatag='salida' datare='${reservas.id_reservation}' dataservice='A' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_trpeactionrep}' data-target='#repModal'> ${reservas.rep_salida}</a></td>
-                                                        <td class='text-center p-2'>
-                                                        <a   href='reservation_profile.php?reservation=${reservas.new_id_reservation}&coinv=${reservas.code_invoice}' target='_blank' title='ver detalles' id='view_details'><i class='far fa-eye'></i></a>
-                                                        </td>
-                                                        <td class='text-center p-2'>
-                                                            <a href='#' id='reserva-pay' title='Conciliar' class=''><i class='fas fa-dollar-sign'></i></a>
-                                                        </td>
-                                                </tr>`;    
-                                    
-                                }else{
-                                    template += `
-                                    <tr> 
-                                        <td colspan = "17" style="background: #E5A54B; color: #fff;">S I N - A S I G N A R</td>
-                                    </tr>
-                                    <tr reserva-id='${reservas.id_reservation}'>
-                                            <td>${reservas.id_reservation}</td>
-                                            <td class="font-weight-bold">${reservas.code_invoice}</td>
-                                            <td>${reservas.name_client}</td>
-                                            <td>${reservas.transfer_destiny}</td>
-                                            <td>${reservas.type_service}</td>
-                                            <td>${$newtype}</td>
-                                            <td class="font-weight-bold" >${$newdateArrvial}</td>
-                                            <td class="font-weight-bold" >${$newtimeArrival}</td>
-                                            <td class="font-weight-bold">${$newdateExit}</td>
-                                            <td class="font-weight-bold">${$newtimeExit}</td>
-                                            <td>${$total + ' ' + $currency} </td>
-                                            <td>${$newpayment}</td>
-                                            <td>${$newstatus}</td>
-                                            <td><a href='#' id='select_provider' datare='${reservas.id_reservation}'  data='${reservas.provider_salida}' datatag='salida' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_typeaction}' dataservice='D' data-toggle='modal' data-target='#providerModal'> ${reservas.provider_salida}</a></td>
-                                            <td><a href='#' id='select_rep' data-toggle='modal'  datarep='${reservas.rep_salida}' datatag='salida' datare='${reservas.id_reservation}' dataservice='A' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_trpeactionrep}' data-target='#repModal'> ${reservas.rep_salida}</a></td>
-                                            <td class='text-center p-2'>
-                                            <a   href='reservation_profile.php?reservation=${reservas.new_id_reservation}&coinv=${reservas.code_invoice}' target='_blank' title='ver detalles' id='view_details'><i class='far fa-eye'></i></a>
-                                            </td>
-                                            <td class='text-center p-2'>
-                                                <a href='#' id='reserva-pay' title='Conciliar' class=''><i class='fas fa-dollar-sign'></i></a>
-                                            </td>
-                                    </tr>`;  
-                                }
-                            });
-                            $('#container').html(template);
-                            $('#result-search').show('slow');
-                        }
-                    }
-                }
-            });
-        }else{  
-            $('#result-search').hide('slow');
-            document.getElementById("resultSearch").className = "col-lg-12";
-        }
+        type_search = 1;
+        loadReservations(tab ="", type_search, search, f_llegada = "", f_salida = "");
         e.preventDefault();
     });
 
     // Buscar reserva por agencia 
     $('#form-search-agency').submit(function(e){
-        let data = $('#name_agency').val();
-        if (data == null || data.length == 0 || /^\s+$/.test(data)) {
-            alert('Debes seleccionar alguna agencia.');
-            $('#name_agency').focus();
-            return false;
+        let search = $('#name_agency').val();
+        let type_search = "";
+        if (search == null || search.length == 0 || /^\s+$/.test(search)) {
+          $('#search').addClass(" is-invalid");
+          $('#search').focus();
+          return false;
         }
-        if($('#name_agency').val()) {
-            let search = 'search';
-            const postData = {
-                'data': data,
-                'search': search,
-            }
-            $.ajax({
-                url:'../../helpers/servicios.php',
-                type:'POST',
-                data:postData,
-                beforeSend: function(){
-                    let template = '';
-                    template += `
-                    <div class="col-lg-4 col-md-3">
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="spinner-grow text-dark" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                        <div class="spinner-grow text-secondary" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                        <div class="spinner-grow text-dark" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-3">
-                    </div>  
-                        
-                    `;
-                    
-                    $('#container').html(template);
-                    $("#table-data").hide('slow');
-                    $('#result-search').show('slow');
-                },
-                success: function(response){
-                    $('#name_agency').val('');
-                    if (!response.error) {
-                        let reservas = JSON.parse(response);
-                        if (reservas == '') {  
-                            let template = '';
-                            template += `
-                                <div class='col-lg-11 pt-2'>
-                                    <h6 class="p-2 font-weight-bold"> Búsqueda por la agencia ${data} </h6>
-                                </div>
-                                <div class='col-lg-1 pt-2 text-right'>
-                                    <a href="#" class='btn btn-black btn-sm' id='cerrar_results'>X</a>
-                                </div>
-                                <div class="col-lg-12 pt-3">
-                                    <br/>
-                                    <p>No se encontro ninguna reservación que coincida.</p>
-                                </div>
-                                ` ;
-                                $('#container').html(template);
-                                $('#hotel-result').show();
-                        }else{
-                            let template = '';
-                            template += `
-                                    <div class='col-lg-11 pt-2'>
-                                        <h6 class="p-2 font-weight-bold"> Búsqueda de los servicios de la agencia ${data} del año actual </h6>
-                                    </div>
-                                    <div class='col-lg-1 pt-2 text-right'>
-                                        <a href="#" class='btn btn-black btn-sm' id='cerrar_results'>X</a>
-                                    </div>
-                                    <table class='table table-hover table-bordered table-sm' cellspacing='0' id='tablaAmenidades'>
-                                        <thead class='thead-light'>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>ID</th>
-                                                <th>Cliente</th>
-                                                <th>Destino</th>
-                                                <th>Servicio</th>
-                                                <th>Traslado</th>
-                                                <th>Fecha Llegada</th>
-                                                <th>Hora Llegada</th>
-                                                <th>Fecha Salida</th>
-                                                <th>Hora Salida</th>
-                                                <th>Total</th>
-                                                <th>Metodo pago</th>
-                                                <th>Estado</th>
-                                                <th>Proveedor</th>
-                                                <th>REP</th>
-                                                <th></th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                    <tbody> `;
-                                    reservas.forEach(reservas => {       
-                                        $newtype = '';
-                                        $newstatus = ``;
-                                        $newpayment = ``;
-                                        $currency = '';
-                                        $newdateArrvial = '';
-                                        $newtimeArrival = '';
-                                        $newdateExit = '';
-                                        $newtimeExit = '';
-                                        if (reservas.date_arrival == null || reservas.date_arrival == '') { $newdateArrvial= ''; } else{ $newdateArrvial = reservas.date_arrival;}
-                                        if (reservas.time_arrival == null || reservas.time_arrival == '') { $newtimeArrival= ''; } else{ $newtimeArrival = reservas.time_arrival + ' Hrs';}
-                                        if (reservas.date_exit == null || reservas.date_exit == '') { $newdateExit= ''; }else{ $newdateExit = reservas.date_exit;}
-                                        if (reservas.time_exit == null || reservas.time_exit == '') { $newtimeExit= ''; } else{ $newtimeExit = reservas.time_exit + ' Hrs';}
-                                        switch (reservas.method_payment) {
-                                            case 'oxxo':
-                                                $newnamepay = "OXXO";
-                                                break;
-                                            case 'transfer':
-                                                $newnamepay = "TRANSFERENCIA";
-                                                break;
-                                            case 'airport':
-                                                $newnamepay = "AEROPUERTO";
-                                                break;
-                                            case 'paypal':
-                                                $newnamepay = "PAYPAL";
-                                                break;
-                                            case 'card':
-                                                $newnamepay = "TARJETA";
-                                                break;
-                                            case 'deposit':
-                                                $newnamepay = "DEPOSITO";
-                                                break;
-                                        }
-                                        switch (reservas.status_reservation) {
-                                            case 'RESERVED':
-                                                $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                    <option value='${reservas.status_reservation}'>${reservas.status_reservation}</option>
-                                                    <option value='COMPLETED'>COMPLETED</option>
-                                                    <option value='NO SHOW'>NO SHOW</option>
-                                                    <option value='CANCELLED'>CANCELLED</option>
-                                                    <option value='REFUNDED'>REFUNDED</option>
-                                                </select>`;
-                                                break;
-                                            case 'COMPLETED':
-                                                $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                    <option value='{${reservas.status_reservation}}'>${reservas.status_reservation}</option>
-                                                    <option value='RESERVED'>RESERVED</option>
-                                                    <option value='NO SHOW'>NO SHOW</option>
-                                                    <option value='CANCELLED'>CANCELLED</option>
-                                                    <option value='REFUNDED'>REFUNDED</option>
-                                                </select>`;
-                                                break;
-                                            case 'NO SHOW':
-                                                $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                    <option value='{${reservas.status_reservation}}'>${reservas.status_reservation}</option>
-                                                    <option value='RESERVED'>RESERVED</option>
-                                                    <option value='COMPLETED'>COMPLETED</option>
-                                                    <option value='CANCELLED'>CANCELLED</option>
-                                                    <option value='REFUNDED'>REFUNDED</option>
-                                                </select>`;
-                                                break;
-                                            case 'CANCELLED':
-                                                $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                    <option value='{${reservas.status_reservation}}'>${reservas.status_reservation}</option>
-                                                    <option value='RESERVED'>RESERVED</option>
-                                                    <option value='COMPLETED'>COMPLETED</option>
-                                                    <option value='NO SHOW'>NO SHOW</option>
-                                                    <option value='REFUNDED'>REFUNDED</option>
-                                                </select>`;
-                                                break;
-                                            case 'REFUNDED':
-                                                $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                    <option value='{${reservas.status_reservation}}'>${reservas.status_reservation}</option>
-                                                    <option value='RESERVED'>RESERVED</option>
-                                                    <option value='COMPLETED'>COMPLETED</option>
-                                                    <option value='NO SHOW'>NO SHOW</option>
-                                                    <option value='CANCELLED'>CANCELLED</option>
-                                                </select>`;
-                                                break;
-                                            default:
-                                                $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                    <option value='deposit'>Sin asignar</option>
-                                                    <option value='RESERVED'>RESERVED</option>
-                                                    <option value='COMPLETED'>COMPLETED</option>
-                                                    <option value='NO SHOW'>NO SHOW</option>
-                                                    <option value='CANCELLED'>CANCELLED</option>
-                                                    <option value='REFUNDED'>REFUNDED</option>
-                                                </select>`;
-                                                break;
-                                        }
-                                        switch (reservas.method_payment) {
-                                            case 'oxxo':
-                                                $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                                    <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                    <option value='transfer'>TRANSFERENCIA</option>
-                                                    <option value='airport'>AEROPUERTO</option>
-                                                    <option value='paypal'>PAYPAL</option>
-                                                    <option value='card'>TARJETA</option>
-                                                    <option value='deposit'>DEPOSITO</option>
-                                                </select>`;
-                                                break;
-                                            case 'transfer':
-                                                $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                                <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                    <option value='oxxo'>OXXO</option>
-                                                    <option value='airport'>AEROPUERTO</option>
-                                                    <option value='paypal'>PAYPAL</option>
-                                                    <option value='card'>TARJETA</option>
-                                                    <option value='deposit'>DEPOSITO</option>
-                                                </select>`;
-                                                break;
-                                            case 'airport':
-                                                $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>                                    
-                                                    <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                    <option value='oxxo'>OXXO</option>
-                                                    <option value='transfer'>TRANSFERENCIA</option>
-                                                    <option value='paypal'>PAYPAL</option>
-                                                    <option value='card'>TARJETA</option>
-                                                    <option value='deposit'>DEPOSITO</option>
-                                                </select>`;
-                                                break;
-                                            case 'paypal':
-                                                $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                                <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                    <option value='oxxo'>OXXO</option>
-                                                    <option value='transfer'>TRANSFERENCIA</option>
-                                                    <option value='airport'>AEROPUERTO</option>
-                                                    <option value='card'>TARJETA</option>
-                                                    <option value='deposit'>DEPOSITO</option>
-                                                </select>`;
-                                                break;
-                                            case 'card':
-                                                $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                                <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                    <option value='oxxo'>OXXO</option>
-                                                    <option value='transfer'>TRANSFERENCIA</option>
-                                                    <option value='airport'>AEROPUERTO</option>
-                                                    <option value='paypal'>PAYPAL</option>
-                                                    <option value='deposit'>DEPOSITO</option>
-                                                </select>`;
-                                                break;
-                                            case 'deposit':
-                                                $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                                <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                    <option value='oxxo'>OXXO</option>
-                                                    <option value='transfer'>TRANSFERENCIA</option>
-                                                    <option value='airport'>AEROPUERTO</option>
-                                                    <option value='paypal'>PAYPAL</option>
-                                                    <option value='card'>TARJETA</option>
-                                                </select>`;
-                                                break;
-                                            default:
-                                                $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                                    <option value='deposit'>Sin asignar</option>
-                                                    <option value='deposit'>DEPOSITO</option>
-                                                    <option value='oxxo'>OXXO</option>
-                                                    <option value='transfer'>TRANSFERENCIA</option>
-                                                    <option value='airport'>AEROPUERTO</option>
-                                                    <option value='paypal'>PAYPAL</option>
-                                                    <option value='card'>TARJETA</option>
-                                                </select>`;
-                                                break;
-                                        }
-                                        if (reservas.type_transfer == 'SEN/AH' ) {
-                                            $newtype = 'Aeorpuerto - Hotel ';
-                                        }
-                                        if (reservas.type_transfer == 'SEN/HA' ) {
-                                            $newtype = 'Hotel - Aeorpuerto ';
-                                        }
-                                        if (reservas.type_transfer == 'RED' ) {
-                                            $newtype = 'Redondo';
-                                        }
-                                        if (reservas.type_transfer == 'REDHH' ) {
-                                            $newtype = 'Hotel - Hotel ';
-                                        }
-                                        if (reservas.type_transfer == 'SEN/HH' ) {
-                                            $newtype = 'Hotel - Hotel ';
-                                        }
-                                        $total = reservas.total_cost - reservas.agency_commision;
-                                        if (reservas.type_currency == 'RED') {
-                                            $total = (reservas.total_cost - reservas.agency_commision) / 2;
-                                        }
-                                        if (reservas.type_currency == 'mx') {
-                                            $currency = 'MXN';
-                                        }
-                                        if (reservas.type_currency == 'us') {
-                                            $currency = 'USD';
-                                        }
-                                        if (reservas.type_currency == 'pt') {
-                                            $currency = 'USD';
-                                        }
-                                        if (reservas.date_arrival == reservas.today) {
-                                            template += `
-                                                        <tr> 
-                                                            <td colspan = "17" style="background: #3F80EA; color: #fff;">L L E G A D A</td>
-                                                        </tr>
-                                                        <tr reserva-id='${reservas.id_reservation}'>
-                                                                <td>${reservas.id_reservation}</td>
-                                                                <td class="font-weight-bold">${reservas.code_invoice}</td>
-                                                                <td>${reservas.name_client}</td>
-                                                                <td>${reservas.transfer_destiny}</td>
-                                                                <td>${reservas.type_service}</td>
-                                                                <td>${$newtype}</td>
-                                                                <td class="font-weight-bold">${$newdateArrvial}</td>
-                                                                <td class="font-weight-bold">${$newtimeArrival}</td>
-                                                                <td>${$newdateExit}</td>
-                                                                <td>${$newtimeExit}</td>
-                                                                <td>${$total + ' ' + $currency} </td>
-                                                                <td>${$newpayment}</td>
-                                                                <td>${$newstatus}</td>
-                                                                <td><a href='#' id='select_provider' datare='${reservas.id_reservation}'  data='${reservas.provider}' datatag='entrada' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_typeaction}' dataservice='A' data-toggle='modal' data-target='#providerModal'> ${reservas.provider}</a></td>
-                                                                <td><a href='#' id='select_rep' data-toggle='modal'  datarep='${reservas.rep}' datatag='entrada' datare='${reservas.id_reservation}' dataservice='A' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_trpeactionrep}' data-target='#repModal'> ${reservas.rep}</a></td>
-                                                                <td class='text-center p-2'>
-                                                        <a   href='reservation_profile.php?reservation=${reservas.new_id_reservation}&coinv=${reservas.code_invoice}' target='_blank' title='ver detalles' id='view_details'><i class='far fa-eye'></i></a>
-                                                                </td>
-                                                                <td class='text-center p-2'>
-                                                                    <a href='#' id='reserva-pay' title='Conciliar' class=''><i class='fas fa-dollar-sign'></i></a>
-                                                                </td>
-                                                        </tr>`;    
-                                        }else if (reservas.date_exit == reservas.today) {
-                                            template += `
-                                                        <tr> 
-                                                            <td colspan = "17" style="background: #495057; color: #fff;">S A L I D A </td>
-                                                        </tr>
-                                                        <tr reserva-id='${reservas.id_reservation}'>
-                                                                <td>${reservas.id_reservation}</td>
-                                                                <td class="font-weight-bold">${reservas.code_invoice}</td>
-                                                                <td>${reservas.name_client}</td>
-                                                                <td>${reservas.transfer_destiny}</td>
-                                                                <td>${reservas.type_service}</td>
-                                                                <td>${$newtype}</td>
-                                                                <td>${$newdateArrvial}</td>
-                                                                <td>${$newtimeArrival} </td>
-                                                                <td class="font-weight-bold">${$newdateExit}</td>
-                                                                <td class="font-weight-bold">${$newtimeExit}</td>
-                                                                <td>${$total + ' ' + $currency} </td>
-                                                                <td>${$newpayment}</td>
-                                                                <td>${$newstatus}</td>
-                                                                <td><a href='#' id='select_provider' datare='${reservas.id_reservation}'  data='${reservas.provider_salida}' datatag='salida' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_typeaction}' dataservice='D' data-toggle='modal' data-target='#providerModal'> ${reservas.provider_salida}</a></td>
-                                                                <td><a href='#' id='select_rep' data-toggle='modal'  datarep='${reservas.rep_salida}' datatag='salida' datare='${reservas.id_reservation}' dataservice='A' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_trpeactionrep}' data-target='#repModal'> ${reservas.rep_salida}</a></td>
-                                                                <td class='text-center p-2'>
-                                                        <a   href='reservation_profile.php?reservation=${reservas.new_id_reservation}&coinv=${reservas.code_invoice}' target='_blank' title='ver detalles' id='view_details'><i class='far fa-eye'></i></a>
-                                                                </td>
-                                                                <td class='text-center p-2'>
-                                                                    <a href='#' id='reserva-pay' title='Conciliar' class=''><i class='fas fa-dollar-sign'></i></a>
-                                                                </td>
-                                                        </tr>`;    
-                                            
-                                        }else{
-                                            template += `
-                                            <tr> 
-                                                <td colspan = "17" style="background: #E5A54B; color: #fff;">S I N - A S I G N A R</td>
-                                            </tr>
-                                            <tr reserva-id='${reservas.id_reservation}'>
-                                                    <td>${reservas.id_reservation}</td>
-                                                    <td class="font-weight-bold">${reservas.code_invoice}</td>
-                                                    <td>${reservas.name_client}</td>
-                                                    <td>${reservas.transfer_destiny}</td>
-                                                    <td>${reservas.type_service}</td>
-                                                    <td>${$newtype}</td>
-                                                    <td class="font-weight-bold" >${$newdateArrvial}</td>
-                                                    <td class="font-weight-bold" >${$newtimeArrival}</td>
-                                                    <td class="font-weight-bold">${$newdateExit}</td>
-                                                    <td class="font-weight-bold">${$newtimeExit}</td>
-                                                    <td>${$total + ' ' + $currency} </td>
-                                                    <td>${$newpayment}</td>
-                                                    <td>${$newstatus}</td>
-                                                    <td><a href='#' id='select_provider' datare='${reservas.id_reservation}'  data='${reservas.provider_salida}' datatag='salida' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_typeaction}' dataservice='D' data-toggle='modal' data-target='#providerModal'> ${reservas.provider_salida}</a></td>
-                                                    <td><a href='#' id='select_rep' data-toggle='modal'  datarep='${reservas.rep_salida}' datatag='salida' datare='${reservas.id_reservation}' dataservice='A' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_trpeactionrep}' data-target='#repModal'> ${reservas.rep_salida}</a></td>
-                                                    <td class='text-center p-2'>
-                                                        <a href='#' id='reserva-view' title='ver detalles' class=''><i class='fas fa-eye'></i></a>
-                                                    </td>
-                                                    <td class='text-center p-2'>
-                                                        <a href='#' id='reserva-pay' title='Conciliar' class=''><i class='fas fa-dollar-sign'></i></a>
-                                                    </td>
-                                            </tr>`;  
-                                        }
-                                    });
-                            $('#container').html(template);
-                            $('#result-search').show('slow');
-                        }
-                    }
-                }
-            });
-        }else{  
-            $('#result-search').hide('slow');
-            document.getElementById("resultSearch").className = "col-lg-12";
-        }
+        type_search = 2;
+        loadReservations(tab ="", type_search, search, f_llegada = "", f_salida = "");
         e.preventDefault();
     });    
-
-    // datepicker
-    $( function() {
-        var $datepicker2 = $( "#datepicker_end" );
-        $('#datepicker_star').datepicker( {
-            language: 'es',
-            minDate: new Date(),
-            onSelect: function(fecha) {
-                $datepicker2.datepicker({   
-                    language: 'es',       
-                      minDate: new Date(),
-
-                });
-                $datepicker2.datepicker("option", "disabled", false);
-                $datepicker2.datepicker('setDate', null);
-                $datepicker2.datepicker("option", "minDate", fecha); 
-            }
-        });
-        $.datepicker.regional['es'] = {
-            closeText: 'Cerrar',
-            prevText: '<Ant',
-            nextText: 'Sig>',
-            currentText: 'Hoy',
-            monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-            monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-            dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
-            dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Juv', 'Vie', 'Sáb'],
-            dayNamesMin: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'],
-            weekHeader: 'Sm',
-            dateFormat: 'yy-mm-dd',
-            firstDay: 1,
-            isRTL: false,
-            showMonthAfterYear: false,
-            yearSuffix: ''
-          };
-          $.datepicker.setDefaults($.datepicker.regional['es']);
-    });
 
     $(document).on('click', '#radiob', function(){
         var val = $(this).is(':checked') ? 1 : 0;
@@ -862,724 +167,29 @@ $(function(){
 
     // Busqueda por fechas
     $('#form-date').submit(function(e){
-        let star = $('#datepicker_star').val();
-        let end = $('#datepicker_end').val();
-        
-        if (star == null || star.length == 0) {
-            alert('Debes seleccionar una fecha');
-            $('#datepicker_star').focus();
-            return false;
+        let f_llegada = $('#datepicker_star').val();
+        let f_salida = ""; 
+        let type_search = "";     
+        let checked = 0;
+        var seleccion = $("#radiob")[0].checked;
+        if (f_llegada == null || f_llegada.length == 0 || /^\s+$/.test(f_llegada)) {
+          $('#datepicker_star').addClass(" is-invalid");
+          $('#datepicker_star').focus();
+          return false;
+        } 
+        type_search = 3;
+        if(seleccion){
+            f_salida = $('#datepicker_end').val(); 
+            checked = 1;
+            if (f_salida == null || f_salida.length == 0 || /^\s+$/.test(f_salida)) {
+                $('#datepicker_end').addClass(" is-invalid");
+                $('#datepicker_end').focus();
+                return false;
+            }
+            type_search = 4;
         }
-        if (star) {
-            if (!end) {
-                end = 0;
-            }
-            let search = 'search_date';
-            const postData ={
-                'star': star,
-                'end': end,
-                'search_date': search
-            }
-            if (postData.star && postData.end != 0) {
-                
-                if (end < star) {
-                    alert('La fecha final no puede ser menor a la inicial');
-                    $('#datepicker_end').focus();
-                    return false;
-                }
-                $.ajax({
-                    url:'../../helpers/servicios.php',
-                    type:'POST',
-                    data:postData,
-                    beforeSend: function(){
-                        let template = '';
-                        template += `
-                        <div class="col-lg-4 col-md-3">
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="spinner-grow text-dark" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                        <div class="spinner-grow text-secondary" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                        <div class="spinner-grow text-dark" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-3">
-                    </div>  
-                            
-                        `;
-                        
-                        $('#container').html(template);
-                        $("#table-data").hide('slow');
-                        $('#result-search').show('slow');
-                    },
-                    success: function(response){
-                        if (!response.error) {
-                            let reservas = JSON.parse(response);
-                            if (reservas == '') {  
-                                let template = '';
-                                template += `
-                                        <div class='col-lg-11 pt-2'>
-                                            <h6 class="p-2 font-weight-bold"> Búsqueda de las fechas ${star} al ${end} </h6>    
-                                        </div>
-                                        <div class='col-lg-1 pt-2 text-right'>
-                                            <a href="#" class='btn btn-black btn-sm' id='cerrar_results'>X</a>
-                                        </div>  
-                                    <br/>
-                                    <div class="col-lg-12 pt-3">
-                                        <p>No se encontro ninguna reservación que coincida.</p>
-                                    </div>
-                                    ` ;
-                                    $('#fecha_end').hide();
-                                    $('#form-date').trigger('reset');
-                                    $('#container').html(template);
-                                    $('#hotel-result').show();
-                            }else{
-                                let template = '';
-                                template +=`
-                                <div class='col-lg-11 pt-2'>
-                                    <h6 class="p-2 font-weight-bold"> Búsqueda de las fechas ${star} al ${end} </h6>    
-                                </div>
-                                <div class='col-lg-1 pt-2 text-right'>
-                                    <a href="#" class='btn btn-black btn-sm' id='cerrar_results'>X</a>
-                                </div>  `;
-                                template += `
-                                        <table class='table table-hover table-bordered table-sm' cellspacing='0' id='tablaAmenidades'>
-                                            <thead class='thead-light'>
-                                                <tr>
-                                                    <th>ID</th>
-                                                    <th>ID</th>
-                                                    <th>Cliente</th>
-                                                    <th>Destino</th>
-                                                    <th>Servicio</th>
-                                                    <th>Traslado</th>
-                                                    <th>Fecha Llegada</th>
-                                                    <th>Hora Llegada</th>
-                                                    <th>Fecha Salida</th>
-                                                    <th>Hora Salida</th>
-                                                    <th>Total</th>
-                                                    <th>Metodo pago</th>
-                                                    <th>Estado</th>
-                                                    <th>Proveedor</th>
-                                                    <th>REP</th>
-                                                    <th></th>
-                                                    <th></th>
-                                                    </tr>
-                                            </thead>
-                                        <tbody> `;
-                                reservas.forEach(reservas => {       
-                                    $newtype = '';
-                                    $newstatus = ``;
-                                    $newpayment = ``;
-                                    $currency = '';
-                                    $newdateArrvial = '';
-                                    $newtimeArrival = '';
-                                    $newdateExit = '';
-                                    $newtimeExit = '';
-                                    if (reservas.date_arrival == null || reservas.date_arrival == '') { $newdateArrvial= ''; } else{ $newdateArrvial = reservas.date_arrival;}
-                                    if (reservas.time_arrival == null || reservas.time_arrival == '') { $newtimeArrival= ''; } else{ $newtimeArrival = reservas.time_arrival + ' Hrs';}
-                                    if (reservas.date_exit == null || reservas.date_exit == '') { $newdateExit= ''; }else{ $newdateExit = reservas.date_exit;}
-                                    if (reservas.time_exit == null || reservas.time_exit == '') { $newtimeExit= ''; } else{ $newtimeExit = reservas.time_exit + ' Hrs';}
-                                    switch (reservas.method_payment) {
-                                        case 'oxxo':
-                                            $newnamepay = "OXXO";
-                                            break;
-                                        case 'transfer':
-                                            $newnamepay = "TRANSFERENCIA";
-                                            break;
-                                        case 'airport':
-                                            $newnamepay = "AEROPUERTO";
-                                            break;
-                                        case 'paypal':
-                                            $newnamepay = "PAYPAL";
-                                            break;
-                                        case 'card':
-                                            $newnamepay = "TARJETA";
-                                            break;
-                                        case 'deposit':
-                                            $newnamepay = "DEPOSITO";
-                                            break;
-                                    }
-                                    switch (reservas.status_reservation) {
-                                        case 'RESERVED':
-                                            $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                <option value='${reservas.status_reservation}'>${reservas.status_reservation}</option>
-                                                <option value='COMPLETED'>COMPLETED</option>
-                                                <option value='NO SHOW'>NO SHOW</option>
-                                                <option value='CANCELLED'>CANCELLED</option>
-                                                <option value='REFUNDED'>REFUNDED</option>
-                                            </select>`;
-                                            break;
-                                        case 'COMPLETED':
-                                            $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                <option value='{${reservas.status_reservation}}'>${reservas.status_reservation}</option>
-                                                <option value='RESERVED'>RESERVED</option>
-                                                <option value='NO SHOW'>NO SHOW</option>
-                                                <option value='CANCELLED'>CANCELLED</option>
-                                                <option value='REFUNDED'>REFUNDED</option>
-                                            </select>`;
-                                            break;
-                                        case 'NO SHOW':
-                                            $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                <option value='{${reservas.status_reservation}}'>${reservas.status_reservation}</option>
-                                                <option value='RESERVED'>RESERVED</option>
-                                                <option value='COMPLETED'>COMPLETED</option>
-                                                <option value='CANCELLED'>CANCELLED</option>
-                                                <option value='REFUNDED'>REFUNDED</option>
-                                            </select>`;
-                                            break;
-                                        case 'CANCELLED':
-                                            $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                <option value='{${reservas.status_reservation}}'>${reservas.status_reservation}</option>
-                                                <option value='RESERVED'>RESERVED</option>
-                                                <option value='COMPLETED'>COMPLETED</option>
-                                                <option value='NO SHOW'>NO SHOW</option>
-                                                <option value='REFUNDED'>REFUNDED</option>
-                                            </select>`;
-                                            break;
-                                        case 'REFUNDED':
-                                            $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                <option value='{${reservas.status_reservation}}'>${reservas.status_reservation}</option>
-                                                <option value='RESERVED'>RESERVED</option>
-                                                <option value='COMPLETED'>COMPLETED</option>
-                                                <option value='NO SHOW'>NO SHOW</option>
-                                                <option value='CANCELLED'>CANCELLED</option>
-                                            </select>`;
-                                            break;
-                                        default:
-                                            $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                <option value='deposit'>Sin asignar</option>
-                                                <option value='RESERVED'>RESERVED</option>
-                                                <option value='COMPLETED'>COMPLETED</option>
-                                                <option value='NO SHOW'>NO SHOW</option>
-                                                <option value='CANCELLED'>CANCELLED</option>
-                                                <option value='REFUNDED'>REFUNDED</option>
-                                            </select>`;
-                                            break;
-                                    }
-                                    switch (reservas.method_payment) {
-                                        case 'oxxo':
-                                            $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                                <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                <option value='transfer'>TRANSFERENCIA</option>
-                                                <option value='airport'>AEROPUERTO</option>
-                                                <option value='paypal'>PAYPAL</option>
-                                                <option value='card'>TARJETA</option>
-                                                <option value='deposit'>DEPOSITO</option>
-                                            </select>`;
-                                            break;
-                                        case 'transfer':
-                                            $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                            <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                <option value='oxxo'>OXXO</option>
-                                                <option value='airport'>AEROPUERTO</option>
-                                                <option value='paypal'>PAYPAL</option>
-                                                <option value='card'>TARJETA</option>
-                                                <option value='deposit'>DEPOSITO</option>
-                                            </select>`;
-                                            break;
-                                        case 'airport':
-                                            $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>                                    
-                                                <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                <option value='oxxo'>OXXO</option>
-                                                <option value='transfer'>TRANSFERENCIA</option>
-                                                <option value='paypal'>PAYPAL</option>
-                                                <option value='card'>TARJETA</option>
-                                                <option value='deposit'>DEPOSITO</option>
-                                            </select>`;
-                                            break;
-                                        case 'paypal':
-                                            $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                            <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                <option value='oxxo'>OXXO</option>
-                                                <option value='transfer'>TRANSFERENCIA</option>
-                                                <option value='airport'>AEROPUERTO</option>
-                                                <option value='card'>TARJETA</option>
-                                                <option value='deposit'>DEPOSITO</option>
-                                            </select>`;
-                                            break;
-                                        case 'card':
-                                            $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                            <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                <option value='oxxo'>OXXO</option>
-                                                <option value='transfer'>TRANSFERENCIA</option>
-                                                <option value='airport'>AEROPUERTO</option>
-                                                <option value='paypal'>PAYPAL</option>
-                                                <option value='deposit'>DEPOSITO</option>
-                                            </select>`;
-                                            break;
-                                        case 'deposit':
-                                            $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                            <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                <option value='oxxo'>OXXO</option>
-                                                <option value='transfer'>TRANSFERENCIA</option>
-                                                <option value='airport'>AEROPUERTO</option>
-                                                <option value='paypal'>PAYPAL</option>
-                                                <option value='card'>TARJETA</option>
-                                            </select>`;
-                                            break;
-                                        default:
-                                            $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                                <option value='deposit'>Sin asignar</option>
-                                                <option value='deposit'>DEPOSITO</option>
-                                                <option value='oxxo'>OXXO</option>
-                                                <option value='transfer'>TRANSFERENCIA</option>
-                                                <option value='airport'>AEROPUERTO</option>
-                                                <option value='paypal'>PAYPAL</option>
-                                                <option value='card'>TARJETA</option>
-                                            </select>`;
-                                            break;
-                                    }
-                                    if (reservas.type_transfer == 'SEN/AH' ) {
-                                        $newtype = 'Aeorpuerto - Hotel ';
-                                    }
-                                    if (reservas.type_transfer == 'SEN/HA' ) {
-                                        $newtype = 'Hotel - Aeorpuerto ';
-                                    }
-                                    if (reservas.type_transfer == 'RED' ) {
-                                        $newtype = 'Redondo';
-                                    }
-                                    if (reservas.type_transfer == 'REDHH' ) {
-                                        $newtype = 'Hotel - Hotel ';
-                                    }
-                                    if (reservas.type_transfer == 'SEN/HH' ) {
-                                        $newtype = 'Hotel - Hotel ';
-                                    }
-                                    $total = reservas.total_cost - reservas.agency_commision;
-                                    if (reservas.type_currency == 'RED') {
-                                        $total = (reservas.total_cost - reservas.agency_commision) / 2;
-                                    }
-                                    if (reservas.type_currency == 'mx') {
-                                        $currency = 'MXN';
-                                    }
-                                    if (reservas.type_currency == 'us') {
-                                        $currency = 'USD';
-                                    }
-                                    if (reservas.type_currency == 'pt') {
-                                        $currency = 'USD';
-                                    }
-                                    if (reservas.date_arrival >= star && reservas.date_arrival <= end) {
-                                        template += `
-                                                    <tr> 
-                                                        <td colspan = "17" style="background: #3F80EA; color: #fff;">L L E G A D A</td>
-                                                    </tr>
-                                                    <tr reserva-id='${reservas.id_reservation}'>
-                                                            <td>${reservas.id_reservation}</td>
-                                                            <td class="font-weight-bold">${reservas.code_invoice}</td>
-                                                            <td>${reservas.name_client}</td>
-                                                            <td>${reservas.transfer_destiny}</td>
-                                                            <td>${reservas.type_service}</td>
-                                                            <td>${$newtype}</td>
-                                                            <td class="font-weight-bold">${$newdateArrvial}</td>
-                                                            <td class="font-weight-bold">${$newtimeArrival}</td>
-                                                            <td>${$newdateExit}</td>
-                                                            <td>${$newtimeExit}</td>
-                                                            <td>${$total + ' ' + $currency} </td>
-                                                            <td>${$newpayment}</td>
-                                                            <td>${$newstatus}</td>
-                                                            <td><a href='#' id='select_provider' datare='${reservas.id_reservation}'  data='${reservas.provider}' datatag='entrada' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_typeaction}' dataservice='A' data-toggle='modal' data-target='#providerModal'> ${reservas.provider}</a></td>
-                                                            <td><a href='#' id='select_rep' data-toggle='modal'  datarep='${reservas.rep}' datatag='entrada' datare='${reservas.id_reservation}' dataservice='A' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_trpeactionrep}' data-target='#repModal'> ${reservas.rep}</a></td>
-                                                            <td class='text-center p-2'>
-                                                                <a href='#' id='reserva-view' title='ver detalles' class=''><i class='fas fa-eye'></i></a>
-                                                            </td>
-                                                            <td class='text-center p-2'>
-                                                                <a href='#' id='reserva-pay' title='Conciliar' class=''><i class='fas fa-dollar-sign'></i></a>
-                                                            </td>
-                                                    </tr>`;    
-                                    }else if (reservas.date_exit >= star && reservas.date_exit <= end) {
-                                        template += `
-                                                    <tr> 
-                                                        <td colspan = "17" style="background: #495057; color: #fff;">S A L I D A </td>
-                                                    </tr>
-                                                    <tr reserva-id='${reservas.id_reservation}'>
-                                                            <td>${reservas.id_reservation}</td>
-                                                            <td class="font-weight-bold">${reservas.code_invoice}</td>
-                                                            <td>${reservas.name_client}</td>
-                                                            <td>${reservas.transfer_destiny}</td>
-                                                            <td>${reservas.type_service}</td>
-                                                            <td>${$newtype}</td>
-                                                            <td>${$newdateArrvial}</td>
-                                                            <td>${$newtimeArrival} </td>
-                                                            <td class="font-weight-bold">${$newdateExit}</td>
-                                                            <td class="font-weight-bold">${$newtimeExit}</td>
-                                                            <td>${$total + ' ' + $currency} </td>
-                                                            <td>${$newpayment}</td>
-                                                            <td>${$newstatus}</td>
-                                                            <td><a href='#' id='select_provider' datare='${reservas.id_reservation}'  data='${reservas.provider_salida}' datatag='salida' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_typeaction}' dataservice='D' data-toggle='modal' data-target='#providerModal'> ${reservas.provider_salida}</a></td>
-                                                            <td><a href='#' id='select_rep' data-toggle='modal'  datarep='${reservas.rep_salida}' datatag='salida' datare='${reservas.id_reservation}' dataservice='A' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_trpeactionrep}' data-target='#repModal'> ${reservas.rep_salida}</a></td>
-                                                            <td class='text-center p-2'>
-                                                                <a href='#' id='reserva-view' title='ver detalles' class=''><i class='fas fa-eye'></i></a>
-                                                            </td>
-                                                            <td class='text-center p-2'>
-                                                                <a href='#' id='reserva-pay' title='Conciliar' class=''><i class='fas fa-dollar-sign'></i></a>
-                                                            </td>
-                                                    </tr>`;    
-                                        
-                                    }
-                                });
-                                $('#fecha_end').hide();
-                                $('#form-date').trigger('reset');
-                                $('#radiob').val('0');
-                                $('#container').html(template);
-                                $('#result-search').show('slow');
-                            }
-                        }
-                    }
-                });
-            }else if(star){
-                $.ajax({
-                    url:'../../helpers/servicios.php',
-                    type:'POST',
-                    data:postData,
-                    beforeSend: function(){
-                        let template = '';
-                        template += `
-                        <div class="col-lg-4 col-md-3">
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="spinner-grow text-dark" role="status">
-                                <span class="sr-only">Loading...</span>
-                            </div>
-                            <div class="spinner-grow text-secondary" role="status">
-                                <span class="sr-only">Loading...</span>
-                            </div>
-                            <div class="spinner-grow text-dark" role="status">
-                                <span class="sr-only">Loading...</span>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-3">
-                        </div>  
-                            
-                        `;
-                        
-                        $('#container').html(template);
-                        $("#table-data").hide('slow');
-                        $('#result-search').show('slow');
-                    },
-                    success: function(response){
-                        if (!response.error) {
-                            let reservas = JSON.parse(response);
-                            if (reservas == '') {  
-                                let template = '';
-                                template += `
-                                <div class='col-lg-11 pt-2'>
-                                    <h6 class="p-2 font-weight-bold"> Búsqueda de la fecha ${star}  </h6>   
-                                </div>
-                                <div class='col-lg-1 pt-2 text-right'>
-                                    <a href="#" class='btn btn-black btn-sm' id="cerrar_results">X</a>
-                                </div>  
-                                    <div class="col-lg-12 pt-2"> 
-                                        <br/>
-                                        <p>No se encontro ninguna reservación que coincida.</p>
-                                    </div>
-                                    ` ;
-                                    $('#fecha_end').hide();
-                                    $('#form-date').trigger('reset');
-                                    $('#container').html(template);
-                                    $('#hotel-result').show();
-                            }else{
-                                let template = '';
-                                
-                                template +=`
-                                <div class='col-lg-11 pt-2'>
-                                    <h6 class="p-2 font-weight-bold"> Búsqueda de la fecha ${star}  </h6>   
-                                </div>
-                                <div class='col-lg-1 pt-2 text-right'>
-                                    <a href="#" class='btn btn-black btn-sm' id="cerrar_results">X</a>
-                                </div>  `; 
-                                template += `
-                                        <table class='table table-hover table-bordered table-sm' cellspacing='0' id='tablaAmenidades'>
-                                            <thead class='thead-light'>
-                                                <tr>
-                                                    <th>ID</th>
-                                                    <th>ID</th>
-                                                    <th>Cliente</th>
-                                                    <th>Destino</th>
-                                                    <th>Servicio</th>
-                                                    <th>Traslado</th>
-                                                    <th>Fecha Llegada</th>
-                                                    <th>Hora Llegada</th>
-                                                    <th>Fecha Salida</th>
-                                                    <th>Hora Salida</th>
-                                                    <th>Total</th>
-                                                    <th>Metodo pago</th>
-                                                    <th>Estado</th>
-                                                    <th>Proveedor</th>
-                                                    <th>REP</th>
-                                                    <th></th>
-                                                    <th></th>
-                                                    </tr>
-                                            </thead>
-                                        <tbody> `;
-                                reservas.forEach(reservas => {       
-                                    $newtype = '';
-                                    $newstatus = ``;
-                                    $newpayment = ``;
-                                    $currency = '';
-                                    $newdateArrvial = '';
-                                    $newtimeArrival = '';
-                                    $newdateExit = '';
-                                    $newtimeExit = '';
-                                    if (reservas.date_arrival == null || reservas.date_arrival == '') { $newdateArrvial= ''; } else{ $newdateArrvial = reservas.date_arrival;}
-                                    if (reservas.time_arrival == null || reservas.time_arrival == '') { $newtimeArrival= ''; } else{ $newtimeArrival = reservas.time_arrival + ' Hrs';}
-                                    if (reservas.date_exit == null || reservas.date_exit == '') { $newdateExit= ''; }else{ $newdateExit = reservas.date_exit;}
-                                    if (reservas.time_exit == null || reservas.time_exit == '') { $newtimeExit= ''; } else{ $newtimeExit = reservas.time_exit + ' Hrs';}
-                                    switch (reservas.method_payment) {
-                                        case 'oxxo':
-                                            $newnamepay = "OXXO";
-                                            break;
-                                        case 'transfer':
-                                            $newnamepay = "TRANSFERENCIA";
-                                            break;
-                                        case 'airport':
-                                            $newnamepay = "AEROPUERTO";
-                                            break;
-                                        case 'paypal':
-                                            $newnamepay = "PAYPAL";
-                                            break;
-                                        case 'card':
-                                            $newnamepay = "TARJETA";
-                                            break;
-                                        case 'deposit':
-                                            $newnamepay = "DEPOSITO";
-                                            break;
-                                    }
-                                    switch (reservas.status_reservation) {
-                                        case 'RESERVED':
-                                            $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                <option value='${reservas.status_reservation}'>${reservas.status_reservation}</option>
-                                                <option value='COMPLETED'>COMPLETED</option>
-                                                <option value='NO SHOW'>NO SHOW</option>
-                                                <option value='CANCELLED'>CANCELLED</option>
-                                                <option value='REFUNDED'>REFUNDED</option>
-                                            </select>`;
-                                            break;
-                                        case 'COMPLETED':
-                                            $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                <option value='{${reservas.status_reservation}}'>${reservas.status_reservation}</option>
-                                                <option value='RESERVED'>RESERVED</option>
-                                                <option value='NO SHOW'>NO SHOW</option>
-                                                <option value='CANCELLED'>CANCELLED</option>
-                                                <option value='REFUNDED'>REFUNDED</option>
-                                            </select>`;
-                                            break;
-                                        case 'NO SHOW':
-                                            $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                <option value='{${reservas.status_reservation}}'>${reservas.status_reservation}</option>
-                                                <option value='RESERVED'>RESERVED</option>
-                                                <option value='COMPLETED'>COMPLETED</option>
-                                                <option value='CANCELLED'>CANCELLED</option>
-                                                <option value='REFUNDED'>REFUNDED</option>
-                                            </select>`;
-                                            break;
-                                        case 'CANCELLED':
-                                            $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                <option value='{${reservas.status_reservation}}'>${reservas.status_reservation}</option>
-                                                <option value='RESERVED'>RESERVED</option>
-                                                <option value='COMPLETED'>COMPLETED</option>
-                                                <option value='NO SHOW'>NO SHOW</option>
-                                                <option value='REFUNDED'>REFUNDED</option>
-                                            </select>`;
-                                            break;
-                                        case 'REFUNDED':
-                                            $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                <option value='{${reservas.status_reservation}}'>${reservas.status_reservation}</option>
-                                                <option value='RESERVED'>RESERVED</option>
-                                                <option value='COMPLETED'>COMPLETED</option>
-                                                <option value='NO SHOW'>NO SHOW</option>
-                                                <option value='CANCELLED'>CANCELLED</option>
-                                            </select>`;
-                                            break;
-                                        default:
-                                            $newstatus += `<select class='form-control-sm' name='new_status_reservation' data='${reservas.id_reservation}' id='new_status_reservation'>
-                                                <option value='deposit'>Sin asignar</option>
-                                                <option value='RESERVED'>RESERVED</option>
-                                                <option value='COMPLETED'>COMPLETED</option>
-                                                <option value='NO SHOW'>NO SHOW</option>
-                                                <option value='CANCELLED'>CANCELLED</option>
-                                                <option value='REFUNDED'>REFUNDED</option>
-                                            </select>`;
-                                            break;
-                                    }
-                                    switch (reservas.method_payment) {
-                                        case 'oxxo':
-                                            $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                                <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                <option value='transfer'>TRANSFERENCIA</option>
-                                                <option value='airport'>AEROPUERTO</option>
-                                                <option value='paypal'>PAYPAL</option>
-                                                <option value='card'>TARJETA</option>
-                                                <option value='deposit'>DEPOSITO</option>
-                                            </select>`;
-                                            break;
-                                        case 'transfer':
-                                            $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                            <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                <option value='oxxo'>OXXO</option>
-                                                <option value='airport'>AEROPUERTO</option>
-                                                <option value='paypal'>PAYPAL</option>
-                                                <option value='card'>TARJETA</option>
-                                                <option value='deposit'>DEPOSITO</option>
-                                            </select>`;
-                                            break;
-                                        case 'airport':
-                                            $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>                                    
-                                                <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                <option value='oxxo'>OXXO</option>
-                                                <option value='transfer'>TRANSFERENCIA</option>
-                                                <option value='paypal'>PAYPAL</option>
-                                                <option value='card'>TARJETA</option>
-                                                <option value='deposit'>DEPOSITO</option>
-                                            </select>`;
-                                            break;
-                                        case 'paypal':
-                                            $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                            <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                <option value='oxxo'>OXXO</option>
-                                                <option value='transfer'>TRANSFERENCIA</option>
-                                                <option value='airport'>AEROPUERTO</option>
-                                                <option value='card'>TARJETA</option>
-                                                <option value='deposit'>DEPOSITO</option>
-                                            </select>`;
-                                            break;
-                                        case 'card':
-                                            $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                            <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                <option value='oxxo'>OXXO</option>
-                                                <option value='transfer'>TRANSFERENCIA</option>
-                                                <option value='airport'>AEROPUERTO</option>
-                                                <option value='paypal'>PAYPAL</option>
-                                                <option value='deposit'>DEPOSITO</option>
-                                            </select>`;
-                                            break;
-                                        case 'deposit':
-                                            $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                            <option value='${reservas.method_payment}'>${$newnamepay}</option>
-                                                <option value='oxxo'>OXXO</option>
-                                                <option value='transfer'>TRANSFERENCIA</option>
-                                                <option value='airport'>AEROPUERTO</option>
-                                                <option value='paypal'>PAYPAL</option>
-                                                <option value='card'>TARJETA</option>
-                                            </select>`;
-                                            break;
-                                        default:
-                                            $newpayment += `<select class='form-control-sm' name='new_method_payment' data='${reservas.id_reservation}' id='new_method_payment'>
-                                                <option value='deposit'>Sin asignar</option>
-                                                <option value='deposit'>DEPOSITO</option>
-                                                <option value='oxxo'>OXXO</option>
-                                                <option value='transfer'>TRANSFERENCIA</option>
-                                                <option value='airport'>AEROPUERTO</option>
-                                                <option value='paypal'>PAYPAL</option>
-                                                <option value='card'>TARJETA</option>
-                                            </select>`;
-                                            break;
-                                    }
-                                    
-                                    if (reservas.type_transfer == 'SEN/AH' ) {
-                                        $newtype = 'Aeorpuerto - Hotel ';
-                                    }
-                                    if (reservas.type_transfer == 'SEN/HA' ) {
-                                        $newtype = 'Hotel - Aeorpuerto ';
-                                    }
-                                    if (reservas.type_transfer == 'RED' ) {
-                                        $newtype = 'Redondo';
-                                    }
-                                    if (reservas.type_transfer == 'REDHH' ) {
-                                        $newtype = 'Hotel - Hotel ';
-                                    }
-                                    if (reservas.type_transfer == 'SEN/HH' ) {
-                                        $newtype = 'Hotel - Hotel ';
-                                    }
-
-                                    $total = reservas.total_cost - reservas.agency_commision;
-                                    if (reservas.type_currency == 'RED') {
-                                        $total = (reservas.total_cost - reservas.agency_commision) / 2;
-                                    }
-                                    if (reservas.type_currency == 'mx') {
-                                        $currency = 'MXN';
-                                    }
-                                    if (reservas.type_currency == 'us') {
-                                        $currency = 'USD';
-                                    }
-                                    if (reservas.type_currency == 'pt') {
-                                        $currency = 'USD';
-                                    }
-                                    
-                                    if (reservas.date_arrival == star ) {
-                                        template += `
-                                                    <tr> 
-                                                        <td colspan = "17" style="background: #3F80EA; color: #fff;">L L E G A D A</td>
-                                                    </tr>
-                                                    <tr reserva-id='${reservas.id_reservation}'>
-                                                            <td>${reservas.id_reservation}</td>
-                                                            <td class="font-weight-bold">${reservas.code_invoice}</td>
-                                                            <td>${reservas.name_client}</td>
-                                                            <td>${reservas.transfer_destiny}</td>
-                                                            <td>${reservas.type_service}</td>
-                                                            <td>${$newtype}</td>
-                                                            <td class="font-weight-bold">${$newdateArrvial}</td>
-                                                            <td class="font-weight-bold">${$newtimeArrival}</td>
-                                                            <td>${$newdateExit}</td>
-                                                            <td>${$newtimeExit}</td>
-                                                            <td>${$total + ' ' + $currency} </td>
-                                                            <td>${$newpayment}</td>
-                                                            <td>${$newstatus}</td>
-                                                            <td><a href='#' id='select_provider' datare='${reservas.id_reservation}'  data='${reservas.provider}' datatag='entrada' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_typeaction}' dataservice='A' data-toggle='modal' data-target='#providerModal'> ${reservas.provider}</a></td>
-                                                            <td><a href='#' id='select_rep' data-toggle='modal'  datarep='${reservas.rep}' datatag='entrada' datare='${reservas.id_reservation}' dataservice='A' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_trpeactionrep}' data-target='#repModal'> ${reservas.rep}</a></td>
-                                                            <td class='text-center p-2'>
-                                                                <a href='#' id='reserva-view' title='ver detalles' class=''><i class='fas fa-eye'></i></a>
-                                                            </td>
-                                                            <td class='text-center p-2'>
-                                                                <a href='#' id='reserva-pay' title='Conciliar' class=''><i class='fas fa-dollar-sign'></i></a>
-                                                            </td>
-                                                    </tr>`;    
-                                    }else if (reservas.date_exit == star ) {
-                                        template += `
-                                                    <tr> 
-                                                        <td colspan = "17" style="background: #495057; color: #fff;">S A L I D A </td>
-                                                    </tr>
-                                                    <tr reserva-id='${reservas.id_reservation}'>
-                                                            <td>${reservas.id_reservation}</td>
-                                                            <td class="font-weight-bold">${reservas.code_invoice}</td>
-                                                            <td>${reservas.name_client}</td>
-                                                            <td>${reservas.transfer_destiny}</td>
-                                                            <td>${reservas.type_service}</td>
-                                                            <td>${$newtype}</td>
-                                                            <td>${$newdateArrvial}</td>
-                                                            <td>${$newtimeArrival} </td>
-                                                            <td class="font-weight-bold">${$newdateExit}</td>
-                                                            <td class="font-weight-bold">${$newtimeExit}</td>
-                                                            <td>${$total + ' ' + $currency} </td>
-                                                            <td>${$newpayment}</td>
-                                                            <td>${$newstatus}</td>
-                                                            <td><a href='#' id='select_provider' datare='${reservas.id_reservation}'  data='${reservas.provider_salida}' datatag='salida' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_typeaction}' dataservice='D' data-toggle='modal' data-target='#providerModal'> ${reservas.provider_salida}</a></td>
-                                                            <td><a href='#' id='select_rep' data-toggle='modal'  datarep='${reservas.rep_salida}' datatag='salida' datare='${reservas.id_reservation}' dataservice='D' datainvoice='${reservas.code_invoice}' dataaction='${reservas.new_trpeactionrep}' data-target='#repModal'> ${reservas.rep_salida}</a></td>
-                                                            <td class='text-center p-2'>
-                                                                <a href='#' id='reserva-view' title='ver detalles' class=''><i class='fas fa-eye'></i></a>
-                                                            </td>
-                                                            <td class='text-center p-2'>
-                                                                <a href='#' id='reserva-pay' title='Conciliar' class=''><i class='fas fa-dollar-sign'></i></a>
-                                                            </td>
-                                                    </tr>`;    
-                                        
-                                    }  
-                                });
-                                $('#fecha_end').hide();
-                                $('#form-date').trigger('reset');
-                                $('#container').html(template);
-                                $('#result-search').show('slow');
-                            }
-                        }
-                    }
-                });
-            }
-        }else{
-            $('#result-search').hide('slow');
-            document.getElementById("resultSearch").className = "col-lg-12";
-        }
+        loadReservations(tab ="", type_search, search="", f_llegada, f_salida);
+    
         e.preventDefault();
     });
 
@@ -1618,10 +228,25 @@ $(function(){
         let element = $(this)[0];
         let text = $(this).find('option:selected').text();
         let id = $(element).attr('data');
+        let code = $(element).attr('code');
+        let transfer = $(element).attr('transfer');
+        let user = $('#inp_user').val();
+        if ((text == 'CANCELLED') && (transfer == 'REDHH' || transfer == 'RED')) {
+            $('#cancelationModal').modal('show');
+            $('#content_type_cs').hide();
+            $('#inp_selected').val(text);
+            $('#inp_reservation').val(id);
+            $('#inp_code').val(code);
+            $('#inp_transfer').val(transfer);
+			return false;
+        }
         var payment = {
             'id': id,
             'value': stts,
+            'transfer': transfer,
             'text': text,
+            'code': code,
+            'user': user,
             'setstatusmet': 1
         };
         $.ajax({
@@ -1631,10 +256,63 @@ $(function(){
             beforeSend: function(){
             },
             success: function(data){
-                var res = $.parseJSON(data);
                 $('html, body').animate({scrollTop: 0}, 600);
                 $('.alert-msg').show();
-                $('#text-msg').val(res.message);
+                $('#text-msg').val(data);
+            }
+
+        });
+    });
+    $(document).on('click', '#cancelButtonCancelation', function(){
+        $('#cancelationModal').modal('hide');
+        $('#content_type_cs').hide();
+        $('#formCancelation').trigger('reset');
+    });
+    $(document).on('change', '#type_cancelation', function(){
+        let val = $(this).val();
+        if (val == 'partial') {
+            $('#content_type_cs').show('fade');
+        }
+        if (val == 'full') {
+            $('#content_type_cs').hide('fade');
+        }
+
+    });
+    $(document).on('click', '#btn_form_cancelation', function(){
+        let text = $('#type_cancelation').val();
+        let id = $('#inp_reservation').val();
+        let code = $('#inp_code').val();
+        let select = $('#inp_selected').val();
+        let ty_cs = "";
+        let user = $('#inp_user').val();
+        let transfer = $('#inp_transfer').val();
+        if (text == 'partial') {
+            ty_cs = $('#type_cancelation_service').val();
+        }
+        var payment = {
+            'id': id,
+            'value': select,
+            'transfer': transfer,
+            'text': text,
+            'code': code,
+            'ty_cs': ty_cs,
+            'user': user,
+            'setstatusmet': 1
+        };        
+        $.ajax({
+            data: payment,
+            url: '../../helpers/reservaciones.php',
+            type: 'post',					
+            beforeSend: function(){
+            },
+            success: function(data){
+                $('html, body').animate({scrollTop: 0}, 600);
+                $('.alert-msg').show();
+                $('#text-msg').val(data);
+                $('#cancelationModal').modal('hide');
+                $('#content_type_cs').hide();
+                $('#formCancelation').trigger('reset');
+                loadReservations(tab ="LLEGADA", type_search = "",data_search = "", f_llegada = "", f_salida = "");
             }
 
         });
@@ -1643,66 +321,77 @@ $(function(){
     // Navs 
     $('#entry-tab').click(function(){
         let reserved = "LLEGADA";
-        loadReservations(reserved);
+        
+        loadReservations(reserved, type_search = "",data_search = "", f_llegada = "", f_salida = "");
     });
 
     $('#exit-tab').click(function(){
         let reserved = "SALIDA";
-        loadReservations(reserved);
+        loadReservations(reserved, type_search = "",data_search = "", f_llegada = "", f_salida = "");
     });
     // End Navs
 
     // Listar hoteles
-    function loadReservations(lets){
+    function loadReservations(lets, type_search, data_search, f_llegada, f_salida){
+        $('#content_services').show();
+        $("#result-search").hide();
         function loadData(page){
             $.ajax({
                 url: "../../model/servicios_paginacion.php",
                 type: "POST",
                 cache: false,
-                data: {page_no:page, navs: lets},
+                data: {page_no:page, navs: lets,type_search, data_search, f_llegada, f_salida },
                 beforeSend: function(){
                     let template = '';
                     template += `
-                    <div class="col-lg-4 col-md-3">
+                    
+                    <div class="row">
+                        <div class="col-lg-4 col-md-3">
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="spinner-grow text-dark" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div class="spinner-grow text-secondary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div class="spinner-grow text-dark" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-3">
+                        </div>
                     </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="spinner-grow text-dark" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                        <div class="spinner-grow text-secondary" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                        <div class="spinner-grow text-dark" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-3">
-                    </div>  
                         
                     `;
-                    if (lets = '') {
+                    if (lets == '') {
+                        $("#result-search").show();
+                        $("#result-search").html(template);
+                        $('#content_services').hide();
+                        
+                    }
+                    if (lets == 'LLEGADA') {
                         $("#table-data-re").html(template);
                         
                     }
-                    if (lets = 'LLEGADA') {
-                        $("#table-data-re").html(template);
-                        
-                    }
-                    if (lets = 'SALIDA') {
+                    if (lets == 'SALIDA') {
                         $("#table-data-co").html(template);
                         
                     }
                 },
                 success: function(response){
-                    if (lets = '') {
+                    $('#content_services').show();
+                    $("#result-search").html('');
+                    if (lets == '') {
+                        $("#result-search").html(response);
+                        $('#content_services').hide();
+                        
+                    }
+                    if (lets == 'LLEGADA') {
                         $("#table-data-re").html(response);
                         
                     }
-                    if (lets = 'LLEGADA') {
-                        $("#table-data-re").html(response);
-                        
-                    }
-                    if (lets = 'SALIDA') {
+                    if (lets == 'SALIDA') {
                         $("#table-data-co").html(response);
                         
                     }
@@ -1753,6 +442,15 @@ $(function(){
             else element.addClass("desc");
           }
     }
+    
+    $(document).on('click','#view_all_services', function(){
+        $('#search').val('');
+        $('#name_agency').val('');
+        $('#datepicker_star').val('');
+        $('#datepicker_end').val('');
+        loadReservations(tab ="LLEGADA", type_search = "",data_search = "", f_llegada = "", f_salida = "");
+    });
+
     // Traer el id de la URL
     function getParameterByName(name) {
         name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -1859,9 +557,9 @@ $(function(){
                 if (type_tag == 'salida') {
                     tag = 'SALIDA'
                     $('.alert-msg').show();
-                    loadReservations(tag);
+                    loadReservations(tag, type_search = "",data_search = "", f_llegada = "", f_salida = "");
                     loadMessagesReservation(id_reservation);
-                    $('#result-search').hide('slow');
+                    //$('#result-search').hide('slow');
                     $('#entry-tab').removeClass('active');
                     $('#exit-tab').addClass('active');
                     $('#text-msg').val(json.message);
@@ -1870,9 +568,9 @@ $(function(){
                     
                     tag = 'LLEGADA'
                     $('.alert-msg').show();
-                    loadReservations(tag);
+                    loadReservations(tag, type_search = "",data_search = "", f_llegada = "", f_salida = "");
                     loadMessagesReservation(id_reservation);
-                    $('#result-search').hide('slow');
+                    //$('#result-search').hide('slow');
                     $('#exit-tab').removeClass('active');
                     $('#entry-tab').addClass('active');
                     $('#text-msg').val(json.message);
@@ -1912,8 +610,8 @@ $(function(){
                 if (type_tag == 'salida') {
                     tag = 'SALIDA'
                     $('.alert-msg').show();
-                    loadReservations(tag);
-                    $('#result-search').hide('slow');
+                    loadReservations(tag, type_search = "",data_search = "", f_llegada = "", f_salida = "");
+                    //$('#result-search').hide('slow');
                     $('#entry-tab').removeClass('active');
                     $('#exit-tab').addClass('active');
                     $('#text-msg').val(json.message);
@@ -1922,8 +620,8 @@ $(function(){
                     
                     tag = 'LLEGADA'
                     $('.alert-msg').show();
-                    loadReservations(tag);
-                    $('#result-search').hide('slow');
+                    loadReservations(tag, type_search = "",data_search = "", f_llegada = "", f_salida = "");
+                    //$('#result-search').hide('slow');
                     $('#exit-tab').removeClass('active');
                     $('#entry-tab').addClass('active');
                     $('#text-msg').val(json.message);
@@ -1933,13 +631,107 @@ $(function(){
         e.preventDefault();
     });
 
+    $(document).on('click', '#btn_register_pay', function(){
+        let element = $(this)[0].parentElement.parentElement;
+        let id = $(element).attr('reserva-id');
+        $('#inp_reservation').val(id);
+    });
+    $(document).on('click', '#btnSetCharge', function(){
+        let charge = $('#inp_charge').val();
+        let currency = $('#inp_currency').val();
+        let concept = $('#inp_concept').val();
+        let check_taxipay = 0;
+        let taxipayment = 0;
+        let check_paleteo = 0;
+        let id_reservation = $('#inp_reservation').val();
+        let id_user = $('#inp_user').val();
+
+        
+		if (charge == null || charge.length == 0 || /^\s+$/.test(charge)) {
+            $('#inp_charge').addClass(" is-invalid");
+            $('#inp_charge').focus();
+			return false;
+		}
+		if (concept == null || concept.length == 0 || /^\s+$/.test(concept)) {
+            $('#inp_concept').addClass(" is-invalid");
+            $('#inp_concept').focus();
+			return false;
+		}
+
+        if ($('#inp_taxi').is(':checked')) {
+            check_taxipay = 1;
+            taxipayment = $('#inp_taxipayment').val();
+
+        }
+        if ($('#inp_paleteo').is(':checked')) {
+            check_paleteo = 1;
+        }
+        const postData = {
+            'charge': charge,
+            'currency': currency,
+            'concept': concept,
+            'check_paleteo': check_paleteo,
+            'check_taxipay':check_taxipay,
+            'taxipayment': taxipayment,
+            'id_reservation': id_reservation,
+            'id_user': id_user,
+            'action': 'charge_register'
+        };       
+        $.ajax({
+            data: postData,
+            url: '../../helpers/reservaciones.php',
+            type: 'POST',
+            success: function(data){
+                $('#cancelButtonrg').click();
+                if (data == 1) {
+                    $('html, body').animate({scrollTop: 0}, 600);
+
+                    $('#frmSetCharge').trigger('reset');
+                    $('#exampleModal').modal('hide');
+                    $('.alert-msg').show();
+                    $('#text-msg').val("El gasto con concepto "+concept+ " a sido registrado correctamente");
+                }else{
+                    $('html, body').animate({scrollTop: 0}, 600);
+                    $('#exampleModal').modal('hide');
+                    $('.alert-msg').show();
+                    
+                    $('#text-msg').val("Error al registrar el gasto con concepto "+concept);
+                }
+            }
+        });
+    });
+    $(document).on('click', '#cancelButtonrg', function(){
+        $('#frmSetCharge').trigger('reset');
+        $('#exampleModal').modal('hide');
+        $("#inp_paleteo").prop('checked', false);
+        $('#inp_concept').val('').removeAttr('disabled');
+        $('#content_taxipayment').hide();
+
+    });
+    $(document).on('click', '#inp_paleteo', function(){
+        if ($('#inp_paleteo').is(':checked')) {
+            $('#inp_concept').val('Paleteo').attr('disabled', 'disabled');
+            $('#content_taxipayment').hide('fade');
+            $("#inp_taxi").prop('checked', false);
+        }else{
+            $('#inp_concept').val('').removeAttr('disabled');
+        }
+    });
+    $(document).on('click', '#inp_taxi', function(){
+        if ($('#inp_taxi').is(':checked')) {
+            $('#inp_concept').val('Taxi').attr('disabled', 'disabled');
+            $('#content_taxipayment').show('fade');
+            $("#inp_paleteo").prop('checked', false);
+        }else{
+            $('#inp_taxi').val('').removeAttr('disabled');
+            $('#content_taxipayment').hide('fade');
+        }
+    });
 
     /* APARTADO DE DETALLES DE RESERVACION / SERVICIO */
-
-
     //Enviar mensaje 
     $(document).on('click', '#btn_send_msj', function(){
-        let id_reservation = id;
+        let id_reservation = $('#inp_id_reservation').val();
         let comment = $('#input_msj').val();
         var postData = {
             'id_reservation': id_reservation,
@@ -1962,6 +754,8 @@ $(function(){
                     $('#input_msj').val('');
                     var $target = $('#content-messages'); 
                     $target.animate({ scrollTop: $target.prop("scrollHeight")}, 0);
+                    loadCountMsj();
+                    loadCountActivities();
                 }
             }
         }); 
@@ -1971,7 +765,7 @@ $(function(){
     $(document).on('click', '#input_msj', function(){
         $('#input_msj').removeClass('is-invalid');
     });
-    
+
     //Carga los mensajes 
     function loadMessagesReservation(id){
         let user_id = $('#value').val();
@@ -1991,5 +785,447 @@ $(function(){
         });
     }
 
+    //MOSTRAR MENSAJES BITACORA
+    $(document).on('click', '#btn_view_notifications', function(){
+        let type = 'load_msj_bitacora';
+        loadMsjs(type);
+        $("#notification-latest").show();
+    });
+    //MOSTRAR MENSAJES ACTIVIDADES
+    $(document).on('click', '#btn_view_notifications_activity', function(){
+            let type = 'load_msj_activity';
+            loadMsjs(type);
+            $("#notification-latest").show();
+    });
+    //LOAD MSJS
+    function loadMsjs(type){
+        const postDatas = {
+            'id': $('#inp_user').val(),
+            'type': type,
+            'action': 'get_all_msjs'
+        };
+        $.ajax({
+            data: postDatas,
+            url: '../../model/notificaciones.php',
+            type: 'POST',
+            cache: false,
+            beforeSend: function(){
+                let template = '';
+                template += `
+                <div class="row">
+                    <div class="col-lg-4 col-md-3">
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="spinner-grow text-dark" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <div class="spinner-grow text-secondary" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <div class="spinner-grow text-dark" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-3">
+                    </div>
+                </div>
+                    
+                `;
+                $("#notification-latest").html(template);
+            },
+            success: function(res){
+                var json = $.parseJSON(res);
+                $('#icon_notify').removeClass(' notify_news');
+                $('#icon_notify_activity').removeClass(' notify_news');
+                    if (json.status == 1) {
+                        $("#notification-latest").html(json.msj);
+                        loadCountMsj();
+                    }else{
+                        
+                        $("#notification-latest").html(json.msj);
+                        loadCountMsj();
+                    }
 
+            }
+        });
+    }
+    function loadCountMsj(){
+        const postDatas = {
+            'id': $('#inp_user').val(),
+            'action': 'get_count_msjs'
+        };
+        $.ajax({
+            data: postDatas,
+            url: '../../helpers/reservaciones.php',
+            type: 'POST',
+            cache: false,
+            beforeSend: function(){
+                let template = '';
+                template += ` - `;
+                $("#num_notify").html(template);
+            },
+            success: function(res){
+                
+                if (res > 0) {
+                    $('#icon_notify').addClass(' notify_news');
+                    $("#num_notify").html(res);
+                }else{
+                    
+                    $("#num_notify").html(res);
+                }
+                
+
+            }
+        });
+    }
+    function loadCountActivities(){
+        const postDatas = {
+            'id': $('#inp_user').val(),
+            'action': 'get_count_acts'
+        };
+        $.ajax({
+            data: postDatas,
+            url: '../../helpers/reservaciones.php',
+            type: 'POST',
+            cache: false,
+            beforeSend: function(){
+                let template = '';
+                template += ` - `;
+                $("#num_notify_activity").html(template);
+            },
+            success: function(res){
+                
+                if (res > 0) {
+                    if (res > 99) {
+                        $('#icon_notify_activity').addClass(' notify_news');
+                        $("#num_notify_activity").html('+99');
+                    }else{
+                        $('#icon_notify_activity').addClass(' notify_news');
+                        $("#num_notify_activity").html(res);
+
+                    }
+                }else{
+                    
+                    $("#num_notify_activity").html(res);
+                }
+                
+
+            }
+        });
+    }
+
+    // Change metodo de pago
+    $(document).on('change', '#new_method_payment', function(){
+        let stts = $(this).val();
+        let element = $(this)[0];
+        let text = $(this).find('option:selected').text();
+        let id = $(element).attr('data');
+        let code = $(element).attr('code');
+        var payment = {
+            'id': id,
+            'code':code,
+            'value': stts,
+            'text': text,
+            'setmethodpay': 1
+        };
+        $.ajax({
+            data: payment,
+            url: '../../helpers/reservaciones.php',
+            type: 'post',					
+            beforeSend: function(){
+            },
+            success: function(data){
+                var res = $.parseJSON(data);
+                $('html, body').animate({scrollTop: 0}, 600);
+                $('.alert-msg').show();
+                $('#text-msg').val(res.message);
+                
+
+            }
+
+        });
+    });
+    // Change status reservation
+    $(document).on('change', '#new_status_reservation', function(){
+        let stts = $(this).val();
+        let element = $(this)[0];
+        let text = $(this).find('option:selected').text();
+        let id = $(element).attr('data');
+        let code = $(element).attr('code');
+        let transfer = $(element).attr('transfer');
+        let user = $('#inp_user').val();
+        
+        if ((text == 'CANCELLED') && (transfer == 'REDHH' || transfer == 'RED')) {
+            $('#cancelationModal').modal('show');
+            $('#content_type_cs').hide();
+            $('#inp_selected').val(text);
+            $('#inp_reservation').val(id);
+            $('#inp_code').val(code);
+            $('#inp_transfer').val(transfer);
+			return false;
+        }
+        var payment = {
+            'id': id,
+            'value': stts,
+            'transfer': transfer,
+            'text': text,
+            'code': code,
+            'user': user,
+            'setstatusmet': 1
+        };
+        $.ajax({
+            data: payment,
+            url: '../../helpers/reservaciones.php',
+            type: 'post',					
+            beforeSend: function(){
+            },
+            success: function(data){
+                $('html, body').animate({scrollTop: 0}, 600);
+                $('.alert-msg').show();
+                $('#text-msg').val(data);
+                loadReservations(tab ="LLEGADA", type_search = "",data_search = "", f_llegada = "", f_salida = "");
+            }
+
+        });
+    });
+    // BTN DESCARGAR EXCEL
+    $(document).on('click', '#checkFechaServicio_s', function(){
+            var val = $(this).is(':checked') ? 1 : 0;
+            if (val == 1) {
+                $('#content_filter_date_s').show('slide');
+            }else if(val == 0){
+                $('#content_filter_date_s').hide('slide');
+            }
+    });
+    $(document).on('click', '#checkAgencia_s', function(){
+            var val = $(this).is(':checked') ? 1 : 0;
+            if (val == 1) {
+                $('#content_filter_agency_s').show('slide');
+            }else if(val == 0){
+                $('#content_filter_agency_s').hide('slide');
+            }
+    });
+    $(document).on('click', '#checkZona_s', function(){
+            var val = $(this).is(':checked') ? 1 : 0;
+            if (val == 1) {
+                $('#content_filter_zone_s').show('slide');
+            }else if(val == 0){
+                $('#content_filter_zone_s').hide('slide');
+            }
+    });
+    $(document).on('click', '#checkTypeServicie_s', function(){
+            var val = $(this).is(':checked') ? 1 : 0;
+            if (val == 1) {
+                $('#content_filter_type_service_s').show('slide');
+            }else if(val == 0){
+                $('#content_filter_type_service_s').hide('slide');
+            }
+    });
+    $(document).on('click', '#btn_dowload_report_s', function(){
+            var seleccion_date = $("#checkFechaServicio_s")[0].checked;
+            var seleccion_agency = $("#checkAgencia_s")[0].checked;
+            var seleccion_zone = $("#checkZona_s")[0].checked;
+            var seleccion_type_servicie = $("#checkTypeServicie_s")[0].checked;
+            let type_translate=  $('#inp_type_translate').val()
+    
+            const postDatas = {
+                'f_date_a': $('#datepicker_star_download_s').val(),
+                'f_date_s': $('#datepicker_end_download_s').val(),
+                'name_agency': $('#inp_acency_s').val(),
+                'name_zone': $('#inp_zone_s').val(),
+                'name_type_service': $('#inp_service_s').val(),
+                'type_translate': $('#inp_type_translate').val(),
+                'action': 'download_report_s'
+            };
+            if (type_translate == "") {
+                $('#alert-msg-s').addClass(' alert-danger');
+                $('#alert-msg-s').show();
+                $('#text-msg-s').val('Debes seleccionar si servicios de llegadas y/o salidas');
+                setTimeout(function(){ $('#alert-msg-s').hide('slow'); }, 3000);
+                return false;
+            }
+            if(!seleccion_date && !seleccion_agency && !seleccion_zone && !seleccion_type_servicie && !type_translate){
+                $('#alert-msg-s').addClass(' alert-danger');
+                $('#alert-msg-s').show();
+                $('#text-msg-s').val('Selecciona un filtro o llegadas y/o salidas');
+                setTimeout(function(){ $('#alert-msg-s').hide('slow'); }, 3000);
+                return false;
+            }
+            if (seleccion_date) {
+                if (postDatas.f_date_a == null || postDatas.f_date_a.length == 0 || /^\s+$/.test(postDatas.f_date_a)) {
+                    $('#datepicker_star_download_s').addClass(" is-invalid");
+                    $('#datepicker_star_download_s').focus();
+                    return false;
+                }
+                if (postDatas.f_date_s == null || postDatas.f_date_s.length == 0 || /^\s+$/.test(postDatas.f_date_s)) {
+                    $('#datepicker_end_download_s').addClass(" is-invalid");
+                    $('#datepicker_end_download_s').focus();
+                    return false;
+                }
+            }
+            if (seleccion_agency) {
+                if (postDatas.name_agency == null || postDatas.name_agency.length == 0 || /^\s+$/.test(postDatas.name_agency)) {
+                    $('#inp_acency_s').addClass(" is-invalid");
+                    $('#inp_acency_s').focus();
+                    return false;
+                }
+            }
+            if (seleccion_zone) {
+                if (postDatas.name_zone == null || postDatas.name_zone.length == 0 || /^\s+$/.test(postDatas.name_zone)) {
+                    $('#inp_zone_s').addClass(" is-invalid");
+                    $('#inp_zone_s').focus();
+                    return false;
+                }
+            }
+            if (seleccion_type_servicie) {
+                if (postDatas.name_type_service == null || postDatas.name_type_service == "" || postDatas.name_type_service.length == 0 || /^\s+$/.test(postDatas.name_type_service)) {
+                    $('#inp_service_s').addClass(" is-invalid");
+                    $('#inp_service_s').focus();
+                    return false;
+                }
+            }
+            // console.log('Todo los datos: '+postDatas.f_date_a+' - '+postDatas.f_date_s+' - '+postDatas.name_agency+' - '+postDatas.name_zone+' - '+postDatas.name_type_service);
+            $.ajax({
+                data: postDatas,
+                url:'../../helpers/reports.php',
+                type:'POST',
+                beforeSend: function(){
+                    $('.formDownloadReport_s :input').prop('disabled', true);
+                    $('#btn_dowload_report_s').prop('disabled', true);    
+                    $('#btn_dowload_report_s').html('<div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>'); 
+                },
+                success: function(res){ 
+                    var d = new Date();
+                    var today = d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2);
+                    var time = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+                    let fileName = "Servicios "+today+" "+time+ " Hrs";
+                    var element = document.createElement('a');
+                    element.setAttribute('href', 'data:application/vnd.ms-Excel,' + encodeURIComponent(res));
+                    element.setAttribute('download', fileName);
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                    setTimeout(function(){ $('.btn_close_dowload_s').click(); }, 1000);
+                    
+                }
+            });
+    });
+
+    // BTN DESCARGAR EXCEL OPERACIONES
+    $(document).on('click', '#checkFechaServicio_o', function(){
+        var val = $(this).is(':checked') ? 1 : 0;
+        if (val == 1) {
+            $('#content_filter_date_o').show('slide');
+        }else if(val == 0){
+            $('#content_filter_date_o').hide('slide');
+        }
+    });
+    $(document).on('click', '#checkProvider_o', function(){
+            var val = $(this).is(':checked') ? 1 : 0;
+            if (val == 1) {
+                $('#content_filter_provider_o').show('slide');
+            }else if(val == 0){
+                $('#content_filter_provider_o').hide('slide');
+            }
+    });
+    $(document).on('click', '#btn_dowload_report_o', function(){
+            var seleccion_date = $("#checkFechaServicio_o")[0].checked;
+            var seleccion_provider = $("#checkProvider_o")[0].checked;
+            let f_date_s = "";
+            if ($('#datepicker_end_download_o').val()) {
+                f_date_s = $('#datepicker_end_download_o').val();
+            }
+            const postDatas = {
+                'f_date_a': $('#datepicker_star_download_o').val(),
+                'f_date_s': f_date_s,
+                'provider': $('#inp_provider').val(),
+                'action': 'download_report_o'
+            };
+            if(!seleccion_date && !seleccion_provider){
+                $('#alert-msg-o').addClass(' alert-danger');
+                $('#alert-msg-o').show();
+                $('#text-msg-o').val('Selecciona un filtro para generar la operación');
+                setTimeout(function(){ $('#alert-msg-o').hide('slow'); }, 3000);
+                return false;
+            }
+            if (seleccion_date) {
+                if (postDatas.f_date_a == null || postDatas.f_date_a.length == 0 || /^\s+$/.test(postDatas.f_date_a)) {
+                    $('#datepicker_star_download_o').addClass(" is-invalid");
+                    $('#datepicker_star_download_o').focus();
+                    return false;
+                }
+            }
+            if (seleccion_provider) {
+                if (postDatas.provider == null || postDatas.provider.length == 0 || /^\s+$/.test(postDatas.provider)) {
+                    $('#inp_provider').addClass(" is-invalid");
+                    $('#inp_provider').focus();
+                    return false;
+                }
+            }
+            $.ajax({
+                data: postDatas,
+                url:'../../helpers/reports.php',
+                type:'POST',
+                beforeSend: function(){
+                    $('.formDownloadReport_o :input').prop('disabled', true);
+                    $('#btn_dowload_report_o').prop('disabled', true);    
+                    $('#btn_dowload_report_o').html('<div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>');
+                },
+                success: function(res){ 
+                    var d = new Date();
+                    var today = d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2);
+                    var time = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+                    let fileName = "Operaciones "+today+" "+time+ " Hrs";
+                    var element = document.createElement('a');
+                    element.setAttribute('href', 'data:application/vnd.ms-Excel,' + encodeURIComponent(res));
+                    element.setAttribute('download', fileName);
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                    setTimeout(function(){ $('.btn_close_dowload_s').click(); }, 1000);
+                    
+                }
+            });
+    });
+
+    // BTN CANCELAR DOWNLOAD
+    $(document).on('click', '.btn_close_dowload_s', function(){
+            $('.formDownloadReport_s').trigger('reset');
+            $("#checkFechaServicio_s").prop('checked', false);
+            $("#checkAgencia_s").prop('checked', false);
+            $("#checkZona_s").prop('checked', false);
+            $("#checkTypeServicie_s").prop('checked', false);
+            $('#content_filter_agency_s').hide();
+            $('#content_filter_zone_s').hide();
+            $('#content_filter_type_service_s').hide();
+            $('#content_filter_date_s').hide();
+            $('.formDownloadReport_s :input').prop('disabled', false);
+            $('#btn_dowload_report_s').prop('disabled', false);
+            $('#btn_dowload_report_s').html('<span>Descargar</span>'); 
+
+            
+            $('.formDownloadReport_o').trigger('reset');
+            $('.formDownloadReport_o :input').prop('disabled', false);
+            $('#content_filter_provider_o').hide();
+            $("#checkProvider_o").prop('checked', false);
+            $("#checkFechaServicio_o").prop('checked', true);
+            $('#content_filter_date_o').show();
+            $('#btn_dowload_report_o').prop('disabled', false);
+            $('#btn_dowload_report_o').html('<span>Descargar</span>'); 
+    });
+    
+    //Removemos class de Date 1
+	$('.datepicker_star').on('focusout', function(){
+        $(this).removeClass(' is-invalid');
+    });
+    //Removemos class al cambiar de Paso 2
+    $(document).on('change', '#inp_provider', function(){
+        if ($.trim($(this).val()).length) {
+            $(this).removeClass(' is-invalid');
+        } else {
+            $(this).addClass(' is-invalid');
+        }
+    });
 });

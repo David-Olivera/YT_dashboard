@@ -131,12 +131,15 @@
             include('../config/conexion.php');
             if (isset( $ins->{'id'})) {
                 $id =  $ins->{'id'};
+                $name =  $ins->{'name'};
                 $status = 0;
+                $directorio = "../assets/img/amenidades/$name";
                 $query = "UPDATE amenities SET img = '' WHERE id_amenity = $id";
                 $result = mysqli_query($con, $query);
                 if (!$result) {
                     $message = "Error al eliminar la amenidad";
                 }
+                unlink($directorio);
                 $message = 'La imagen de la amenidad a sido eliminado correctamente';
                 return $message;
             }

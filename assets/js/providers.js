@@ -130,7 +130,7 @@ $(function(){
                                                 <a href="#" class="provider-delete-search btn btn-danger btn-sm "><i class="fas fa-trash-alt"></i></a>
                                             </td>
                                             <td class='text-center text-center'>
-                                                <a href='providers_rates.php?id_provider=${provider.id_provider}&provider=${provider.name_provider}' target='_blank' id='provider-tarifa' title='Tarifas de proveedor' class=' btn btn-black btn-sm '><i class='fas fa-calculator'></i></a>
+                                                <a href='providers_rates.php?id_provider=${provider.md5_id_provider}&provider=${provider.name_provider}' target='_blank' id='provider-tarifa' title='Tarifas de proveedor' class=' btn btn-black btn-sm '><i class='fas fa-calculator'></i></a>
                                             </td>
                                     </tr>
                                     ` ;  

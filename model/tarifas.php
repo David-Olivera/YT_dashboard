@@ -20,9 +20,9 @@
                         'privado_ow_1' => $row['privado_ow_1'],
                         'privado_ow_2' => $row['privado_ow_2'],
                         'privado_ow_3' => $row['privado_ow_3'],
-                        'privado_rt_4' => $row['privado_ow_4'],
-                        'privado_rt_5' => $row['privado_ow_5'],
-                        'privado_rt_6' => $row['privado_ow_6'],
+                        'privado_ow_4' => $row['privado_ow_4'],
+                        'privado_ow_5' => $row['privado_ow_5'],
+                        'privado_ow_6' => $row['privado_ow_6'],
                         'privado_rt_1' => $row['privado_rt_1'],
                         'privado_rt_2' => $row['privado_rt_2'],
                         'privado_rt_3' => $row['privado_rt_3'],
@@ -299,13 +299,15 @@
             if (isset( $ins->{'id'})) {
                 $id =  $ins->{'id'};
                 $status = 0;
-                $query = "DELETE FROM rates_public WHERE id_zone = $id";
+                $query_2 ="";
+                $query_3 ="";
+                $query = "DELETE FROM rates_tureando  WHERE id_zone = $id";
                 $result = mysqli_query($con, $query);
                 if ($result) {
                     $query_2 = "DELETE FROM rates_agencies WHERE id_zone = $id";
                     $result_2 = mysqli_query($con, $query_2);
                     if ($result_2) {
-                        $query_3 = "DELETE FROM rates_tureando WHERE id_zone = $id";
+                        $query_3 = "DELETE FROM rates_public WHERE id_zone = $id";
                         $result_3 = mysqli_query($con, $query_3);
                         if ($result_3) {
                             $message = 'La Zona a sido eliminado correctamente';
@@ -315,8 +317,9 @@
                     }
                     $message = "Error al eliminar la zona";
                 }
-                $message = "Error al eliminar la zona";
+                $message = "Error al eliminar la zona";            
             }
+            return $query.' - '.$query_2.' - '.$query_3;
         }
     }
 

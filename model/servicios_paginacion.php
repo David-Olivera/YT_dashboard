@@ -56,9 +56,9 @@
 			$complete_query_search = "((D.date_arrival BETWEEN '$f_llegada' AND '$f_salida') or (D.date_exit BETWEEN '$f_llegada' AND '$f_salida')) ";
         }
 		$query = "SELECT * FROM reservations AS R INNER JOIN reservation_details AS D ON R.id_reservation = D.id_reservation
-		INNER JOIN clients AS C ON C.id_client = R.id_client INNER JOIN agencies AS A ON R.id_agency = A.id_agency WHERE $complete_query_search ;";
+		INNER JOIN clients AS C ON C.id_client = R.id_client  WHERE $complete_query_search ;";
 		$query_count = "SELECT count(*) as total FROM reservations AS R INNER JOIN reservation_details AS D ON R.id_reservation = D.id_reservation
-		INNER JOIN clients AS C ON C.id_client = R.id_client INNER JOIN agencies AS A ON R.id_agency = A.id_agency WHERE $complete_query_search ;";
+		INNER JOIN clients AS C ON C.id_client = R.id_client  WHERE $complete_query_search ;";
             $result = mysqli_query($con, $query);
             $output = "";
             $output2 = "";
@@ -92,8 +92,11 @@
                                         <th>Servicio</th>
                                         <th>Traslado</th>
                                         <th>Fecha</th>
-                                        <th>Hora</th>
+                                        <th>Hora</th>";
+                    if ($id_role == 1 || $id_role == 2) {
+                        $output.= "
                                         <th>Total</th>";
+                    }
                     if ($id_role == 1) {
                         $output.="
                                         <th>Metodo pago</th>
@@ -101,10 +104,14 @@
                     }
                         $output.="
                                         <th>Proveedor</th>";
-                    if ($id_role == 1) {
+                    if ($id_role == 1 || $id_role == 2) {
                         $output.="
                                         <th>REP</th>
                                         <th></th>
+                                        <th></th>";
+                    }
+                    if ($id_role == 1) {
+                        $output.= "
                                         <th></th>";
                     }
                     $output.="
@@ -307,7 +314,7 @@
                             $newtime = "";
                             if ($row['date_arrival'] == $today || ($row['date_arrival'] >= $today && $today < $row['date_exit'])) {
                                 $output.='<tr> 
-                                            <td colspan = "17" style="background: #3F80EA; color: #fff;">L L E G A D A</td>
+                                            <td colspan = "17" style="background: #3F80EA; color: #fff; font-size 12px !important">L L E G A D A</td>
                                         </tr>';
                                 $arrival_or_exit = $row['date_arrival'];
                                 $newtime = substr($row['time_arrival'], 0, 5);
@@ -328,13 +335,16 @@
                             }
                             $output.="<tr reserva-id='{$row['id_reservation']}'>
                                     <td class='font-weight-bold' class='hidden-sm'>{$row['code_invoice']}</td>
-                                    <td>{$row['name_client']}</td>
+                                    <td class='font-weight-bold'>{$row['name_client']} {$row['last_name']} {$row['mother_lastname']}</td>
                                     <td class='hidden-sm'>{$row['transfer_destiny']}</td>
                                     <td>{$row['type_service']}</td>
                                     <td>{$newtype}</td>
                                     <td class='font-weight-bold'>{$arrival_or_exit}</td>
                                     <td class='font-weight-bold'>{$newtime} Hrs</td>
-                                    <td>$ $total $currency</td>";
+                                    ";
+                            if ($id_role == 1 || $id_role == 2) {
+                            $output.="<td>$ $total $currency</td>";
+                            }
                             if ($id_role == 1) {
                             $output.="
                                     <td>{$newpayment}</td>
@@ -343,12 +353,19 @@
                             $output.="
                                     <td>{$set_provider}</td>
                                     ";
+                            if ($id_role == 1 || $id_role == 2) {
+                                $output.="
+                                
+                                <td><a href='#' id='select_rep' data-toggle='modal'  datarep='{$newrep}' datatag='entrada' datare='{$row['id_reservation']}' dataservice='A' datainvoice='{$row['code_invoice']}' dataaction='{$newtypeactionrep}' data-target='#repModal'> {$newrep}</a></td>
+                                <td class='text-center'>
+                                    <a   href='reservation_profile.php?reservation={$newidreserva}&coinv={$row['code_invoice']}&reedit=0' target='_blank' title='ver detalles' id='view_details'><i class='far fa-eye'></i></a>
+                                </td>
+                                <td class='text-center'>
+                                    <a href='reservation_profile.php?reservation={$newidreserva}&coinv={$row['code_invoice']}&reedit=1' target='_blank' id='reservation-edit' title='Editar' class=' amenity-edit ' ><i class='fas fa-edit' ></i></a>
+                                </td>";
+                            }
                             if ($id_role == 1) {
                                 $output.="
-                                        <td><a href='#' id='select_rep' data-toggle='modal'  datarep='{$newrep}' datatag='entrada' datare='{$row['id_reservation']}' dataservice='A' datainvoice='{$row['code_invoice']}' dataaction='{$newtypeactionrep}' data-target='#repModal'> {$newrep}</a></td>
-                                        <td class='text-center'>
-                                            <a   href='reservation_profile.php?reservation={$newidreserva}&coinv={$row['code_invoice']}&reedit=0' target='_blank' title='ver detalles' id='view_details'><i class='far fa-eye'></i></a>
-                                        </td>
                                         <td class='text-center'>
                                             <a href='#' id='btn_register_pay' title='Conciliar' data-toggle='modal' data-target='#exampleModal'><i class='fas fa-dollar-sign'></i></a>
                                         </td>
@@ -394,8 +411,11 @@
                                         <th>Servicio</th>
                                         <th>Traslado</th>
                                         <th>Fecha</th>
-                                        <th>Hora</th>
+                                        <th>Hora</th>";
+                    if ($id_role == 1 || $id_role == 2) {
+                        $output.="
                                         <th>Total</th>";
+                    }
                     if ($id_role == 1) {
                         $output.="
                                         <th>Metodo pago</th>
@@ -403,10 +423,14 @@
                     }
                         $output.="
                                         <th>Proveedor</th>";
-                    if ($id_role == 1) {
+                    if ($id_role == 1 || $id_role == 2) {
                         $output.="
                                         <th>REP</th>
                                         <th></th>
+                                        <th></th>";
+                    }
+                    if ($id_role == 1) {
+                        $output.= "
                                         <th></th>";
                     }
                     $output.="
@@ -608,13 +632,16 @@
                             $newtime = substr($row['time_arrival'], 0, 5);
                             $output.="<tr reserva-id='{$row['id_reservation']}'>
                                     <td class='hidden-sm'>{$row['code_invoice']}</td>
-                                    <td>{$row['name_client']}</td>
+                                    <td>{$row['name_client']} {$row['last_name']} {$row['mother_lastname']}</td>
                                     <td class='hidden-sm'>{$row['transfer_destiny']}</td>
                                     <td>{$row['type_service']}</td>
                                     <td>{$newtype}</td>
                                     <td>{$row['date_arrival']}</td>
-                                    <td>{$newtime} Hrs</td>
+                                    <td>{$newtime} Hrs</td>";    
+                            if ($id_role == 1 || $id_role == 2) {
+                            $output.="
                                     <td>$ $total $currency</td>";
+                            }
                             if ($id_role == 1) {
                             $output.="
                                     <td>{$newpayment}</td>
@@ -623,12 +650,19 @@
                             $output.="
                                     <td>{$set_provider}</td>
                                     ";
+                                    
+                            if ($id_role == 1 || $id_role == 2) {
+                                $output.="
+                                <td><a href='#' id='select_rep' data-toggle='modal'  datarep='{$newrep}' datatag='entrada' datare='{$row['id_reservation']}' dataservice='A' datainvoice='{$row['code_invoice']}' dataaction='{$newtypeactionrep}' data-target='#repModal'> {$newrep}</a></td>
+                                <td class='text-center'>
+                                    <a   href='reservation_profile.php?reservation={$newidreserva}&coinv={$row['code_invoice']}&reedit=0' target='_blank' title='ver detalles' id='view_details'><i class='far fa-eye'></i></a>
+                                </td>
+                                <td class='text-center'>
+                                    <a href='reservation_profile.php?reservation={$newidreserva}&coinv={$row['code_invoice']}&reedit=1' target='_blank' id='reservation-edit' title='Editar' class=' amenity-edit ' ><i class='fas fa-edit' ></i></a>
+                                </td>";
+                            }
                             if ($id_role == 1) {
                                 $output.="
-                                        <td><a href='#' id='select_rep' data-toggle='modal'  datarep='{$newrep}' datatag='entrada' datare='{$row['id_reservation']}' dataservice='A' datainvoice='{$row['code_invoice']}' dataaction='{$newtypeactionrep}' data-target='#repModal'> {$newrep}</a></td>
-                                        <td class='text-center'>
-                                            <a   href='reservation_profile.php?reservation={$newidreserva}&coinv={$row['code_invoice']}&reedit=0' target='_blank' title='ver detalles' id='view_details'><i class='far fa-eye'></i></a>
-                                        </td>
                                         <td class='text-center'>
                                             <a href='#' id='btn_register_pay' title='Conciliar' data-toggle='modal' data-target='#exampleModal'><i class='fas fa-dollar-sign'></i></a>
                                         </td>
@@ -674,8 +708,11 @@
                                         <th>Servicio</th>
                                         <th>Traslado</th>
                                         <th>Fecha</th>
-                                        <th>Hora</th>
+                                        <th>Hora</th>";
+                    if ($id_role == 1 || $id_role == 2) {
+                        $output.="
                                         <th>Total</th>";
+                    }
                     if ($id_role == 1) {
                         $output.="
                                         <th>Metodo pago</th>
@@ -683,10 +720,15 @@
                     }
                         $output.="
                                         <th>Proveedor</th>";
-                    if ($id_role == 1) {
+                    if ($id_role == 1 || $id_role == 2) {
                         $output.=" 
                                         <th>REP</th>
                                         <th></th>
+                                        <th></th>
+                                        ";
+                    }
+                    if ($id_role == 1 ) {
+                        $output.=" 
                                         <th></th>";
                     }
                     $output.="
@@ -878,13 +920,16 @@
                             $newtime = substr($row['time_exit'], 0, 5);
                             $output.="<tr reserva-id='{$row['id_reservation']}'>
                                     <td>{$row['code_invoice']}</td>
-                                    <td>{$row['name_client']}</td>
+                                    <td>{$row['name_client']} {$row['last_name']} {$row['mother_lastname']}</td>
                                     <td>{$row['transfer_destiny']}</td>
                                     <td>{$row['type_service']}</td>
                                     <td>{$newtype}</td>
                                     <td>{$row['date_exit']}</td>
-                                    <td>{$newtime} Hrs</td>
+                                    <td>{$newtime} Hrs</td>";
+                            if ($id_role == 1 || $id_role == 2) {
+                                $output.="
                                     <td>$ $total $currency</td>";
+                            }
                             if ($id_role == 1) {
                                 $output.="
                                     <td>{$newpayment}</td>
@@ -895,12 +940,18 @@
                                     <td><a href='#' id='select_provider' datare='{$row['id_reservation']}'  data='{$newprovider}' datatag='salida' datainvoice='{$row['code_invoice']}' dataaction='{$newtypeaction}' dataservice='D' data-toggle='modal' data-target='#providerModal'> {$newprovider}</a></td>
                                     ";
                                     
-                            if ($id_role == 1) {
+                            if ($id_role == 1 || $id_role == 2) {
                                 $output.="
                                         <td><a href='#' id='select_rep' data-toggle='modal'  datarep='{$newrep}' datare='{$row['id_reservation']}' datatag='salida' dataservice='D' datainvoice='{$row['code_invoice']}' dataaction='{$newtypeactionrep}' data-target='#repModal'> {$newrep}</a></td>
                                         <td class='text-center'>
                                             <a id='amenity-delete'  href='reservation_profile.php?reservation={$newidreserva}&coinv={$row['code_invoice']}&reedit=0' target='_blank' title='ver detalles' class='amenity- '><i class='far fa-eye'></i></a>
-                                        </td>
+                                        </td> 
+                                        <td class='text-center'>
+                                            <a href='reservation_profile.php?reservation={$newidreserva}&coinv={$row['code_invoice']}&reedit=1' target='_blank' id='reservation-edit' title='Editar' class=' amenity-edit ' ><i class='fas fa-edit' ></i></a>
+                                        </td>";
+                            }
+                            if ($id_role == 1) {
+                                $output.="
                                         <td class='text-center'>
                                             <a href='#' id='amenity-delete' title='Conciliar' data-toggle='modal' data-target='#exampleModal' class=' amenity-delete '><i class='fas fa-dollar-sign'></i></a>
                                         </td>";

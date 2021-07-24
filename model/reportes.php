@@ -606,7 +606,7 @@
             
 		    $data = array('arrival_obj' => null, 'departure_obj' => null, 'interhoteles_obj' => null);
             //LLEGADAS
-            $query_l = $this->operationQueryString('A', $provider, 'classic', $obj, $con);
+            $query_l = $this->operationQueryString('A', $provider, 'classic', $obj, 'time_arrival' ,$con);
             $result_l = mysqli_query($con, $query_l);
             if ($result_l) {
 		        if (mysqli_num_rows($result_l) > 0) {
@@ -711,7 +711,7 @@
             }
 
             //SALIDAS
-            $query_s = $this->operationQueryString('D', $provider, 'classic', $obj, $con);
+            $query_s = $this->operationQueryString('D', $provider, 'classic', $obj, 'pickup_entry' ,$con);
             $result_s = mysqli_query($con, $query_s);
             if ($result_s) {
 		        if (mysqli_num_rows($result_s) > 0) {
@@ -813,7 +813,7 @@
                 $template.= "No se encontro ninguna reservacion Salidas";
             }
             //INTERHOTEL LLEGADAS
-            $query_hl = $this->operationQueryString('A', $provider, 'hotel', $obj, $con);
+            $query_hl = $this->operationQueryString('A', $provider, 'hotel', $obj, 'time_arrival', $con);
             $result_hl = mysqli_query($con, $query_hl);
             if ($result_hl) {
 		        if (mysqli_num_rows($result_hl) > 0) {
@@ -892,7 +892,7 @@
                                     <td>{$row['destiny_interhotel']}</td>
                                     <td>".ucfirst($row['type_service'])."</td>
                                     <td>{$newtype}</td>
-                                    <td>{$row['pickup_entry']}</td>
+                                    <td>{$row['time_arrival']}</td>
                                     <td>{$newnamepay}</td>
                                     <td>{$nameProvider}</td>
                                     <td>{$row['status_reservation']}</td>
@@ -911,7 +911,7 @@
                 $template.= "No se encontro ninguna reservacion Interhotel";
             }
             //INTERHOTEL SALIDAS
-            $query_hs = $this->operationQueryString('D', $provider, 'hotel', $obj, $con);
+            $query_hs = $this->operationQueryString('D', $provider, 'hotel', $obj, 'time_exit' ,$con);
             $result_hs = mysqli_query($con, $query_hs);
             if ($result_hs) {
 		        if (mysqli_num_rows($result_hs) > 0) {
@@ -981,6 +981,7 @@
                         $nameProvider = $_provider == '' ? 'S/A' : $_provider;
                         $_comments = $this->getCommentsSaleId($row['id_reservation'], $con);
                         $allComments = $_comments == '' ? 'S/A' : $_comments;
+
                         $template.="
                             <tr>
                                     <td>{$row['name_client']} {$row['last_name']}</td>
@@ -990,7 +991,7 @@
                                     <td>{$row['destiny_interhotel']}</td>
                                     <td>".ucfirst($row['type_service'])."</td>
                                     <td>{$newtype}</td>
-                                    <td>{$row['pickup']}</td>
+                                    <td>{$row['time_exit']}</td>
                                     <td>{$newnamepay}</td>
                                     <td>{$nameProvider}</td>
                                     <td>{$row['status_reservation']}</td>
@@ -1074,7 +1075,7 @@
             $query ="SELECT * FROM reservations AS R INNER JOIN reservation_details AS RD ON R.id_reservation = RD.id_reservation INNER JOIN clients AS C ON C.id_client = R.id_client INNER JOIN agencies AS A ON R.of_the_agency = A.id_agency OR R.id_agency = A.id_agency $inner_zone WHERE $condition_date $condition_agency $condition_zone $condition_type_service $order_by";
             return $query;
         }
-        function operationQueryString($service, $provider, $type_service, $obj, $con){
+        function operationQueryString($service, $provider, $type_service, $obj, $type_orderby ,$con){
             $ins = json_decode($obj);
             $type_date = $service == 'A' ? 'date_arrival' : 'date_exit';
             $type_time = $service == 'A' ? 'time_arrival' : 'time_exit';
@@ -1106,7 +1107,7 @@
                 $condition_transfer = " $and (R.type_transfer = 'SEN/HH' OR R.type_transfer = 'REDHH')";
             }
 
-            $query = "SELECT * FROM reservations AS R INNER JOIN reservation_details AS D ON R.id_reservation = D.id_reservation INNER JOIN clients AS C ON R.id_client = C.id_client  $inner_provider WHERE $condition_provider $condition_date $condition_transfer;";
+            $query = "SELECT * FROM reservations AS R INNER JOIN reservation_details AS D ON R.id_reservation = D.id_reservation INNER JOIN clients AS C ON R.id_client = C.id_client  $inner_provider WHERE $condition_provider $condition_date $condition_transfer ORDER BY D.$type_orderby;";
             return $query;
         }
 

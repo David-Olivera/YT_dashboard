@@ -29,7 +29,6 @@ if (isset($_SESSION['id_user'])) {
         <?PHP
             include('../include/navigation.php');
         ?>
-    
         <div class=" d-flex justify-content-center" id="content-alert-msg">
            <div class="alert alert-info alert-msg alert-dismissible w-100">
                 <div class="row">

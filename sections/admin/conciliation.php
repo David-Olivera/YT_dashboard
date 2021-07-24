@@ -16,7 +16,7 @@ if (isset($_SESSION['id_user'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YameviTravel - Hoteles</title>
+    <title>YameviTravel - Conciliaciones</title>
     <!-- FontAwesome Styles-->
     <script src="https://kit.fontawesome.com/48e49b4629.js" crossorigin="anonymous"></script>
     <?php

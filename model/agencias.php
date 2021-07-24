@@ -4,10 +4,12 @@
         //Search agency
         public function search($obj){
             $ins = json_decode($obj);
+            session_start();
+            $id_role = $_SESSION['id_role'];
             include('../config/conexion.php');
             $search = $ins->{'data'};
             if (!empty($search)) {
-                $query = "SELECT * FROM agencies  WHERE STATUS = 1 AND (name_agency LIKE '$search%' OR id_agency LIKE '$search%')";
+                $query = "SELECT * FROM agencies WHERE (name_agency like '$search%' OR username like '$search%') AND `status` = 1;";
                 $result = mysqli_query($con, $query);
                 if (!$result) {
                     die('Error de consulta'. mysqli_error($con));
@@ -19,11 +21,21 @@
                     if ($result2) {
                         if (mysqli_num_rows($result2) > 0) {
                             while($row2 = mysqli_fetch_assoc($result2)){
+                                $query_electronic_purse = "SELECT SUM(amount_electronic) as total, status as sta FROM electronic_purse WHERE id_agency = {$row['id_agency']};";
+                                $result_electronic_purse = mysqli_query($con, $query_electronic_purse);
+                                $class_ep ="btn btn-outline-success btn-sm";
+                                if ($result_electronic_purse){
+                                    $fila = mysqli_fetch_assoc($result_electronic_purse);
+                                    if (isset($fila['total'])) {
+                                        $class_ep = "btn btn-sm btn-success";
+                                    }
+                                }
 								$checkedCash = $row2['cash'] == 1 ? 'checked="checked"' : NULL;
 								$checkedToday = $row2['todaysale'] == 1 ? 'checked="checked"' : NULL;
 								$checkedPaypal = $row2['paypal'] == 1 ? 'checked="checked"' : NULL;
 								$checkedCard = $row2['card'] == 1 ? 'checked="checked"' : NULL;
 								$checkedYT = $row2['internal_yt'] == 1 ? 'checked="checked"' : NULL;
+								$checkedOPR = $row2['operadora'] == 1 ? 'checked="checked"' : NULL;
                                 $json[] = array(
                                     'id_agency' => $row['id_agency'],
                                     'name_agency' => $row['name_agency'],
@@ -33,11 +45,14 @@
                                     'username' => $row['username'],
                                     'password' => $row['password'],
                                     'register_date' => $row['register_date'],
+                                    'id_role' => $id_role,
+                                    'class_saldo' => $class_ep,
                                     'checkedCash' => $checkedCash,
                                     'checkedToday' => $checkedToday,
                                     'checkedPaypal' => $checkedPaypal,
                                     'checkedCard' => $checkedCard,
-                                    'checkedYT' => $checkedYT
+                                    'checkedYT' => $checkedYT,
+                                    'checkedOPR' => $checkedOPR
                                 ); 
 
                             }
@@ -59,14 +74,7 @@
             $newnom = mysqli_real_escape_string($con,$nom);
             $ema = $ins->{'email_agency'};
             $newema = mysqli_real_escape_string($con,$ema);
-            $query = "SELECT * FROM agencies WHERE STATUS = 1 AND (name_agency = '$nom' OR email_agency = '$ema')";
-            $result = mysqli_query($con, $query);
             $codestate= 0;
-
-            if (isset($result)) {
-                if (mysqli_num_rows($result) > 0) {
-                    $message = 'La agencia '.$ins->{'name_agency'}.' o el email de agencia '.$ins->{'email_agency'}.' ya se encuentran registrados.';
-                }else{
                     $nombre_agencia = $ins->{'name_agency'};
                     $new_nombre_agencia = mysqli_real_escape_string($con,$nombre_agencia);
                     
@@ -99,8 +107,6 @@
                         $codestate = 1;
                     }
     
-                }
-            }
             return json_encode(array('code' => $codestate, 'message' => $message));
         
         }
@@ -410,8 +416,12 @@
                 $user ="";
                 $query_sum = "SELECT SUM(amount_electronic) as total FROM electronic_purse WHERE id_agency = $id;";
                 $result_sum = mysqli_query($con, $query_sum);
+                $sum_amount_electronic = 0.00;
                 if ($result_sum){
                     $fila = mysqli_fetch_assoc($result_sum);
+                    if($fila['total'] != null || $fila['total'] != ''){
+                        $sum_amount_electronic = $fila['total'];
+                    }
                 }
                 while($row = mysqli_fetch_array($result)){
                     $id_agen = $row['id_agency'];
@@ -425,7 +435,7 @@
                     }
                     if ($row['id_reservation'] != 0 && $row['id_reservation'] != "") {
                         $id_res = $row['id_reservation'];
-                        $query_reservation = "SELECT * FROM reservations WHERE id_reservation = $id_res;";
+                        $query_reservation = "SELECT * FROM reservations WHERE id_reservation = $id_res; ";
                         $result_reservation = mysqli_query($con, $query_reservation);
                         if ($result_reservation) {
                             $reserva = mysqli_fetch_assoc($result_reservation);
@@ -439,6 +449,7 @@
                         $user = mysqli_fetch_assoc($result_user);
                     }
                     $json[] = array(
+                        'folio' => $row['folio'],
                         'id_electronic' => $row['id_electronic'],
                         'id_agency' => $row['id_agency'],
                         'name_agency' => $agencia['name_agency'],
@@ -448,7 +459,8 @@
                         'username' => $user['username'],
                         'descripcion_electronic'=> $row['descripcion_electronic'],
                         'amount_electronic' => $row['amount_electronic'],
-                        'sum_amount_electronic' => $fila['total'],
+                        'sum_amount_electronic' => $sum_amount_electronic,
+                        'status' => $row['status'],
                         'date_register_electronic'=> $row['date_register_electronic']
                     );
                 }
@@ -664,11 +676,18 @@
             include('../config/conexion.php');
             $today = date('Y-m-d H:i:s');
             $status = 0;
+            $caracteres = "0123456789";
+            srand((double)microtime()*1000000);
+            $rand = '';
+            for($i = 0; $i < 10; $i++) {
+                $rand .= $caracteres[rand()%strlen($caracteres)];
+            }
+            $folio = '000'.$rand;
             $id_user =  mysqli_real_escape_string($con, $ins->{'id_user'});
             $id_agency =  mysqli_real_escape_string($con, $ins->{'id_agency'});
             $motivo =  mysqli_real_escape_string($con, $ins->{'motivo'});
             $monto =  mysqli_real_escape_string($con, $ins->{'monto'});
-            $query = "INSERT INTO electronic_purse(id_agency,id_user,descripcion_electronic,amount_electronic,date_register_electronic) VALUES($id_agency, $id_user, '$motivo', $monto, '$today');";
+            $query = "INSERT INTO electronic_purse(id_agency,id_user,folio,descripcion_electronic,amount_electronic,date_register_electronic) VALUES($id_agency, $id_user, '$folio' ,'$motivo', $monto, '$today');";
             $result = mysqli_query($con, $query);
             if ($result) {
                 $status = 1;

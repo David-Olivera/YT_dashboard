@@ -911,35 +911,48 @@
                 }
             }
             if ($method_payment == 'card' || $method_payment == 'paypal') {
-                
                 $cargo = 0.95;
                 $add_cargo = $div_price / $cargo;
                 $sum = $commission + $add_cargo;
                 $new_cost = $div_price;
                 $newvalue = number_format($sum, 0, '.', '');
-            }else{            
+            }
+            if($method_payment == 'oxxo' || $method_payment == 'airport' || $method_payment == 'deposit' || $method_payment == 'transfer'){            
                 $new_cost = number_format($div_price, 0, '.', '');
                 $newvalue = number_format($div_price, 0, '.', '');
             }
-            
+            if ($method_payment == 'a_pa' || $method_payment == 'a_transfer' || $method_payment == 'a_paypal' || $method_payment == 'a_card') {
+                $new_cost = number_format($total_cost_comision, 0, '.', '');
+                $newvalue = number_format($total_cost_comision, 0, '.', '');
+            }
             $query = "SELECT * FROM reservations AS R INNER JOIN reservation_details AS RD ON R.id_reservation = RD.id_reservation
             INNER JOIN clients AS C ON R.id_client = C.id_client WHERE R.id_reservation = $id_reservation;";
             $result = mysqli_query($con, $query);
             $row = mysqli_fetch_assoc($result);
             $id_client_e = $row['id_client'];
+            $comment_bef = $row['comments_client'];
             $json = array();
             if ($newvalue != "" || $new_cost != "") {
+                if ($comment_bef != $special_request) {
+                    if ($special_request != "") {
+                        date_default_timezone_set('America/Cancun');
+                        $today = date('Y-m-d H:i:s');
+                        $query_comment = "INSERT INTO bitacora(comments,id_user,id_reservation,register_date,status)VALUES('$special_request', $id_user, $id_reservation, '$today',0);";
+                        $result_comment = mysqli_query($con,$query_comment);
+                    }
+                }
                 //Insertamos datos Clientes
                 $query_client = "UPDATE clients SET code_client= '$code_client', name_advisor = '$name_asesor',name_client = '$name_client',last_name = '$last_name',mother_lastname = '$mother_lastname',email_client = '$email_client',phone_client = '$phone_client',comments_client = '$special_request' WHERE id_client = $id_client_e;";
                 $result_client = mysqli_query($con, $query_client);
                 //Insertamos datos Reserva
                 $query_reserva = "UPDATE reservations SET type_transfer = '$type_traslado', airline_in = '$airline_arrival', no_fly = '$no_fly_arrival', airline_out = '$airline_exit', no_flyout = '$no_fly_exit', transfer_destiny = '$name_hotel',destiny_interhotel = '$name_hotel_interhotel',of_the_agency = $of_the_agency where id_reservation = $id_reservation;";
                 $result_reserv = mysqli_query($con, $query_reserva);
+
                 //Insertamos datos Detalles Reserva
                 $query_detalles = "UPDATE reservation_details SET date_arrival = '$new_date_en',date_exit = '$new_date_ex', time_arrival = '$new_time_en', time_exit = '$new_time_ex', time_service = '$time_service', number_adults = $num_pasajeros, agency_commision = '$commission', total_cost_commision = $newvalue, total_cost = $new_cost, type_service = '$type_service' , method_payment = '$method_payment' , pickup_entry = '$pickup' WHERE id_reservation = $id_reservation;";
                 $result_detalles = mysqli_query($con, $query_detalles);
                 //Insertamos datos Actividad de pickup.
-                if ($pickup != '' && $pickup != '01:00:00' && $pickup != $before_pickup) {
+                if ($pickup != '' && $pickup != '01:00 Hrs' && $pickup != $before_pickup) {
                     date_default_timezone_set('America/Cancun');
                     $today = date('Y-m-d H:i:s');
                     $query_actividad = "INSERT INTO activities(activity_type, activity_status, id_user, id_reservation, change_date)VALUES('PICKUP', '$pickup', $id_user ,$id_reservation, '$today');";
@@ -1376,9 +1389,14 @@
                 $sum = $commission + $add_cargo;
                 $new_cost = $div_price;
                 $newvalue = number_format($sum, 2, '.', '');
-            }else{            
+            }
+            if($method_payment == 'oxxo' || $method_payment == 'airport' || $method_payment == 'deposit' || $method_payment == 'transfer'){    
                 $new_cost = number_format($div_price, 2, '.', '');
                 $newvalue = number_format($div_price, 2, '.', '');
+            }
+            if ($method_payment == 'a_pa' || $method_payment == 'a_transfer' || $method_payment == 'a_paypal' || $method_payment == 'a_card') {
+                $new_cost = number_format($total_cost_comision, 0, '.', '');
+                $newvalue = number_format($total_cost_comision, 0, '.', '');
             }
             
             $query = "SELECT * FROM reservations AS R INNER JOIN reservation_details AS RD ON R.id_reservation = RD.id_reservation
@@ -1388,6 +1406,12 @@
             $id_client_e = $row['id_client'];
             $json = array();
             if ($newvalue != 0 || $new_cost != 0) {
+                if ($comment_bef != $special_request) {
+                    date_default_timezone_set('America/Cancun');
+                    $today = date('Y-m-d H:i:s');
+                    $query_comment = "INSERT INTO bitacora(comments,id_user,id_reservation,register_date,status)VALUES('$special_request', $id_user, $id_reservation, '$today',0);";
+                    $result_comment = mysqli_query($con,$query_comment);
+                }
                 //Insertamos datos Clientes
                 $query_client = "UPDATE clients SET code_client= '$code_client', name_advisor = '$name_asesor',name_client = '$name_client',last_name = '$last_name',mother_lastname = '$mother_lastname',email_client = '$email_client',phone_client = '$phone_client',comments_client = '$special_request' WHERE id_client = $id_client_e;";
                 $result_client = mysqli_query($con, $query_client);

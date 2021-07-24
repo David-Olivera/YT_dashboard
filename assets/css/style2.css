@@ -11,7 +11,18 @@
 #alert-msg{
     display: none !important;
 }
-
+#circle_status_0{
+    width: 10px;
+    height: 10px;
+    background: #B40404;
+    border-radius: 50%;
+}
+#circle_status_1{
+    width: 10px;
+    height: 10px;
+    background: #04B404;
+    border-radius: 50%;
+}
 p {
     font-family: 'Poppins', sans-serif;
     font-size: 1.1em;
@@ -492,6 +503,13 @@ table tbody{
     font-weight: bold;
 }
  /* AGENCIAS */
+
+ /* MONEDERO ELECTRONICO */
+ #content_row_ep{
+    max-height: 700px !important;
+    overflow: scroll;
+ }
+
  .update_users,
  #btn_cancel_edit_user{
     display: none;

@@ -868,11 +868,17 @@ $(function(){
           $('#content_subtotal').show( "drop", { direction: "right" }, "slow" );
           $('#content_comission_agency').show( "drop", { direction: "right" }, "slow" );
           $('#inp_total_cost_commesion_edit').val(cost_total_commision);
+          $('#inp_total_cost_commesion_edit').prop("disabled", true);
         }
         if (value == 'transfer') {
           $('#inp_total_cost_commesion_edit').val(total_cost);
           $('#inp_total_cost_before').val(value_before);
+          $('#inp_total_cost_commesion_edit').prop("disabled", true);
         }
+        if (value == 'a_pa' || value == 'a_transfer' || value == 'a_paypal' || value == 'a_card')  {
+            $('#inp_total_cost_commesion_edit').prop("disabled", false);
+        }
+
     });
     $('.close_content_edit_reserva').click(function(){
             $('#form-content-edit-agencie').trigger('reset');
@@ -1264,6 +1270,9 @@ $(function(){
                   $(".loader").fadeOut("slow");
                   console.log('EL NUEVO PRECIO ES');
                   console.log(data);
+                  
+                  loadCountMsj();
+                  loadCountActivities();
                   let new_currency ="";
                   let newdata ="";
                   if (currency == 'mx') {
@@ -1315,7 +1324,7 @@ $(function(){
         }
         var new_time = 0; 
         if (time.service == 'compartido') {
-            if (parseInt(time.hour) <= 7 || parseInt(time.hour) >= 20) {
+            if (parseInt(time.hour) == 0) {
                 $('#inp_hour_entry_edit').addClass(" is-invalid");
                 $('#inp_hour_entry_edit').focus();
                 $("#alert-msg").show('slow');
@@ -1488,5 +1497,69 @@ $(function(){
             $(this).addClass(' is-invalid');
         }
     });
-    
+    function loadCountMsj(){
+        const postDatas = {
+            'id': $('#inp_user').val(),
+            'action': 'get_count_msjs'
+        };
+        $.ajax({
+            data: postDatas,
+            url: '../../helpers/reservaciones.php',
+            type: 'POST',
+            cache: false,
+            beforeSend: function(){
+                let template = '';
+                template += ` - `;
+                $("#num_notify").html(template);
+            },
+            success: function(res){
+                
+                if (res > 0) {
+                    $('#icon_notify').addClass(' notify_news');
+                    $("#num_notify").html(res);
+                }else{
+                    
+                    $("#num_notify").html(res);
+                }
+                
+
+            }
+        });
+    }
+    function loadCountActivities(){
+        const postDatas = {
+            'id': $('#inp_user').val(),
+            'action': 'get_count_acts'
+        };
+        $.ajax({
+            data: postDatas,
+            url: '../../helpers/reservaciones.php',
+            type: 'POST',
+            cache: false,
+            beforeSend: function(){
+                let template = '';
+                template += ` - `;
+                $("#num_notify_activity").html(template);
+            },
+            success: function(res){
+                
+                if (res > 0) {
+                    if (res > 99) {
+                        $('#icon_notify_activity').addClass(' notify_news');
+                        $("#num_notify_activity").html('+99');
+                    }else{
+                        $('#icon_notify_activity').addClass(' notify_news');
+                        $("#num_notify_activity").html(res);
+
+                    }
+                }else{
+                    
+                    $("#num_notify_activity").html(res);
+                }
+                
+
+            }
+        });
+    }
+
 });

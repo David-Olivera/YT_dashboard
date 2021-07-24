@@ -552,7 +552,7 @@ if (isset($_SESSION['id_user'])) {
                       </div>
                     </div>
                   </div>
-                  <div class="card">
+                  <!-- <div class="card">
                     <button class="btn btn-block btn-black card-header text-left" type="button" data-toggle="collapse" data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive"> 
                       <div class="" id="headingFive"> 
                           <h5 >
@@ -580,7 +580,7 @@ if (isset($_SESSION['id_user'])) {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </div> -->
                 </div>
               </div>
             </div>
@@ -1040,14 +1040,17 @@ if (isset($_SESSION['id_user'])) {
                                     <div class="form-group col-md-2">
                                         <label for="inputEmail4">Método Pago</label>
                                         <select class="custom-select custom-select-sm " id="inp_method_payment_edit" name="inp_method_payment_edit" >
-                                        
                                             <option id="transfer" value="transfer">TRANSFERENCIA</option>
                                             <?php if($reservation->method_payment == 'card') { ?> <option id="card" value="card" selected="selected">TARJETA</option> <?php }else{ ?> <option id="card" value="card">TARJETA</option> <?php }?>
                                             <?php if($reservation->method_payment == 'oxxo') { ?> <option id="oxxo" value="oxxo" selected="selected">OXXO</option> <?php }else{ ?> <option id="oxxo" value="oxxo">OXXO</option> <?php }?>
                                             <?php if($reservation->method_payment == 'paypal') { ?> <option id="paypal" value="paypal" selected="selected">PAYPAL</option> <?php }else{ ?> <option id="paypal" value="paypal">PAYPAL</option> <?php }?> 
                                             <?php if($reservation->method_payment == 'airport') { ?> <option id="airport" value="airport" selected="selected">PAGO AL ABORDAR</option> <?php }else{ ?> <option id="airport" value="airport">PAGO AL ABORDAR</option> <?php }?> 
                                             <?php if($reservation->method_payment == 'deposit') { ?> <option id="deposit" value="deposit" selected="selected">DEPOSITO</option> <?php }else{ ?> <option id="deposit" value="deposit">DEPOSITO</option> <?php }?> 
-                                      
+                                            <?php if($reservation->method_payment == 'a_pa') { ?><option id="a_pa" value="a_pa" selected="selected">AGENCIA - PAGO AL ABORDAR</option><?php }else{?><option id="a_pa" value="a_pa" >AGENCIA - PAGO AL ABORDAR</option><?php }?> 
+                                            <?php if($reservation->method_payment == 'a_transfer') { ?><option id="a_transfer" value="a_transfer" selected="selected">AGENCIA - TRANSFERENCIA</option><?php }else{?><option id="a_transfer" value="a_transfer" >AGENCIA - TRANSFERENCIA</option><?php }?> 
+                                            <?php if($reservation->method_payment == 'a_paypal') { ?><option id="a_paypal" value="a_paypal" selected="selected">AGENCIA - PAYPAL</option><?php }else{ ?><option id="a_paypal" value="a_paypal" >AGENCIA - PAYPAL</option><?php }?> 
+                                            <?php if($reservation->method_payment == 'a_card') { ?><option id="a_card" value="a_card" selected="selected">AGENCIA - TARJETA</option><?php }else {?><option id="a_card" value="a_card">AGENCIA - TARJETA</option><?php }?> 
+                                            
                                         </select>
                                     </div>
                                     <div class="form-group mb-0 col-md-2 pl-1" id="content_subtotal">

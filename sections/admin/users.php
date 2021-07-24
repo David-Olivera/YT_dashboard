@@ -69,7 +69,7 @@ if (isset($_SESSION['id_user'])) {
                                     <option value="">Asigna un rol</option>
                                     <option value="1">Administrador</option>
                                     <option value="2">Operador</option>
-                                    <option value="3">Vendedor</option>
+                                    <option value="3">Driver</option>
                                 </select>
                             </div>
                             <div class="form-group">

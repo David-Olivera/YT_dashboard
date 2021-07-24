@@ -153,11 +153,16 @@
 							$currency ="USD";
 							break;
 					}
+					$new_amount_total = "";
 					$query_total = "SELECT SUM(expense_amount) as total FROM expenses WHERE id_reservation = $id_r;";
 					$result_t = mysqli_query($con, $query_total);
 					if ($result_t) {
 						$ins_t = mysqli_fetch_object($result_t);
-						$new_amount_total = $row['total_cost'] - $ins_t->total;
+						if ($row['method_payment'] == 'card' || $row['method_payment'] == 'paypal') {
+							$new_amount_total = $row['total_cost_commision'] - $ins_t->total;
+						}else{
+							$new_amount_total = $row['total_cost'] - $ins_t->total;
+						}
 					}
 					$query_docs = "SELECT * FROM reservations AS R inner join conciliation AS C ON R.id_reservation = C.id_reservation INNER JOIN conciliation_docs as CD on C.id_conciliation = CD.id_conciliation WHERE CD.id_conciliation = $id_conci AND C.`status` = $type;";
                     $result_c =  mysqli_query($con, $query_docs);

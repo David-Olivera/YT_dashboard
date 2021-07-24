@@ -4,7 +4,7 @@ $(function(){
     setTimeout(function(){ 
         loadCountMsj();
         loadCountActivities(); 
-    }, 30000);
+    }, 5000);
     $('.alert-msg').hide();
     $('#sidebar, #content').toggleClass('active');
     $(document).ready(function () {
@@ -136,7 +136,7 @@ $(function(){
                     $("#num_notify").html(res);
                 }else{
                     
-                    $("#num_notify").html(res);
+                    $("#num_notify").html('0');
                 }
                 
 
@@ -171,7 +171,7 @@ $(function(){
                     }
                 }else{
                     
-                    $("#num_notify_activity").html(res);
+                    $("#num_notify_activity").html('0');
                 }
                 
 

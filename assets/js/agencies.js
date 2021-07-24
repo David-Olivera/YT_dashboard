@@ -128,11 +128,14 @@ $(function(){
                                         <th>Teléfono</th>
                                         <th  class='hidden-sm'>Registro</th>
                                         <th>Docs</th>
+                                        <th>Saldo</th>
                                         <th>CASH</th>
                                         <th>CARD</th>
                                         <th>PAYPAL</th>
                                         <th>TODAY</th>
-                                        <th>Yamevi</th>
+                                        <th>YT</th>
+                                        <th>OPR</th>
+                                        <th></th>
                                         <th></th>
                                         <th></th>
                                         </tr>
@@ -149,7 +152,17 @@ $(function(){
 											<td>${agencies.phone_agency}</td>
 											<td  class='hidden-sm'>${agencies.register_date}</td>
 											<td class='text-center'><a href='#' id='load_docs' class='btn btn-sm btn-black' datagen='${agencies.id_agency}' data-toggle='modal' data-target='#exampleModal' title='Subir documentos'><i class='fas fa-file-upload'></i></a></td>
-											
+											`;
+                                if(agencies.id_role == 1){
+                                    template +=`
+                                            <td class='text-center'><a href='#' id='load_ep' class='${agencies.class_saldo}' dataname='${agencies.name_agency}' datagen='${agencies.id_agency}' data-toggle='modal' data-target='#electronicPurseModal' title='Monedero Electronico'><i class='fas fa-money-check-alt'></i></a></td>	
+                                            `;
+                                }else{
+                                    template +=`
+                                    <td class='text-center'><button class='${agencies.class_saldo}' disabled><i class='fas fa-money-check-alt'></i></button></td>`;
+
+                                }	
+                                template +=`
                                             <td>
 												<div class='form-check '>
 													<input type='checkbox' class='settingCash' data-cash='${agencies.id_agency}' ${agencies.checkedCash} ><br /> 
@@ -175,11 +188,19 @@ $(function(){
                                                 <input type='checkbox' class='settingYT' data-yt='${agencies.id_agency}' ${agencies.checkedYT} ><br /> 
 												</div>
 											</td>
+											<td>
+												<div class='form-check '>
+												<input type='checkbox' class='settingOperadora' data-op='${agencies.id_agency}' ${agencies.checkedOPR} ><br /> 
+												</div>
+											</td>
 											<td class='text-center text-center'>
                                                 <a href="#" class="agency-item btn btn-primary btn-sm " ><i class="fas fa-edit" ></i>
 											</td>
 											<td class='text-center text-center'>
                                             <a href="#" class="agency-delete-search btn btn-danger btn-sm "><i class="fas fa-trash-alt"></i></a>
+											</td>
+											<td class='text-center text-center'>
+												<a href='#' id='agency-users' data-toggle='modal' data-target='#modalUsersAgency' title='Administrar Usuarios' class='agency-users btn btn-dark btn-sm ' ><i class='fas fa-users'></i></a>
 											</td>
                                     </tr>
                                     ` ;  
@@ -485,10 +506,14 @@ $(function(){
                 const ep = JSON.parse(res);
                 let template = "";
                 if (ep != "") {
+                    let new_sum_amoun = 0.00;
+                    if (ep[0].sum_amount_electronic != "" || ep[0].sum_amount_electronic != null) {
+                        new_sum_amoun = ep[0].sum_amount_electronic;
+                    }
                     template += `
                         <div class='row'>
                             <div class='col-lg-9 col-md-8'>
-                                <p>Saldo a favor total: <strong class='text-success'>$ ${ep[0].sum_amount_electronic}</strong></p>
+                                <p>Saldo a favor total: <strong class='text-success'>$ ${new_sum_amoun}</strong></p>
                             </div>
                             <div class='col-lg-3 col-md-4'>
                                 <a href='#' class='btn btn-sm  btn-block btn-success'  id='btn_new_balance'>Agregar Saldo</a>
@@ -512,37 +537,49 @@ $(function(){
                                 </div>
                             </div>
                         </div>
-                        <table class="table w-100" >
-                            <thead>
-                                <tr>
-                                <th style="width:30%" scope="col">Agencia</th>
-                                <th style="width:10%" scope="col">Reservation</th>
-                                <th class='hidden-sm' style="width:10%" scope="col">Usuario</th>
-                                <th style="width:10%" scope="col">Motivo</th>
-                                <th style="width:10%" scope="col">Saldo</th>
-                                <th style="width:20%" scope="col">Fecha</th>
-                                <th style="width:10%" scope="col"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                        <div id="content_row_ep">
+                            <table class="table w-100" >
+                                <thead>
+                                    <tr>
+                                    <th style="width:10%" scope="col">Folio</th>
+                                    <th style="width:30%" scope="col">Agencia</th>
+                                    <th style="width:10%" scope="col">Reservation</th>
+                                    <th class='hidden-sm' style="width:5%" scope="col">Usuario</th>
+                                    <th style="width:10%" scope="col">Motivo</th>
+                                    <th style="width:5%" scope="col">Saldo</th>
+                                    <th style="width:20%" scope="col">Fecha</th>
+                                    <th style="width:5%" scope="col">Status</th>
+                                    <th style="width:5%" scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                     `; 
                     ep.forEach(ep => {
+                        $id_status = "circle_status_0";
+                        let btn_delete = "";
+                        if (ep.status == 1) {
+                            $id_status = "circle_status_1";
+                            btn_delete= `<a href='#' id='delete_balance'dataie=${ep.id_electronic} dataagen="${ep.id_agency}" title='Eliminar Saldo' class='btn btn-danger btn-sm ' ><i class='fas fa-trash-alt'></i></a>`;
+                        }
                         template += `
                             
                         <tr dataie=${ep.id_electronic} dataagen="${ep.id_agency}" datause="${ep.id_user}">
+                        <td><small>${ep.folio}</small></td>
                         <td><small>${ep.name_agency}</small></td>
                         <td><small>${ep.code_invoice}</small></td>
                         <td class='hidden-sm'><small>${ep.username}</small></td>
                         <td><small>${ep.descripcion_electronic}</small></td>
                         <td><small>${ep.amount_electronic}</small></td>
                         <td><small>${ep.date_register_electronic}</small></td>
-                        <td><a href='#' id='delete_balance'dataie=${ep.id_electronic} dataagen="${ep.id_agency}" title='Eliminar Saldo' class='btn btn-danger btn-sm ' ><i class='fas fa-trash-alt'></i></a></td>
+                        <td align="center"><div class="pt-2"><div id="${$id_status}"></div></div></td>
+                        <td>${btn_delete}</td>
                         </tr>
                          `;
                     });
                     template += `
                               </tbody>
                             </table>
+                        </div>
                     `;
                     $('#load_electronic_purse').html(template);
                 }else{
@@ -1275,6 +1312,10 @@ $(function(){
         } else {
             $(this).addClass(' is-invalid');
         }
+    });
+    //Removemos class al cambiar de Paso 2
+    $(document).on('focusout', ' :input', function(){
+        $(this).removeClass(' is-invalid');
     });
 
 

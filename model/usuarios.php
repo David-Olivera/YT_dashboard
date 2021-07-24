@@ -38,30 +38,22 @@
             require_once '../config/conexion.php';
             $nom = $ins->{'first_name'};
             $ema = $ins->{'email_user'};
-            $query = "SELECT * FROM users WHERE STATUS = 1 AND (email_user = '$ema')";
-            $result = mysqli_query($con, $query);
             $codestate= 0;
             $query2 ="";
-            if ($result) {
-                if (mysqli_num_rows($result) > 0) {
-                    $message = 'El usuario '.$ins->{'first_name'}.' con email '.$ins->{'email_user'}.' ya se encuentra registrados.;';
-                }else{
-                    $nombre_usuario = $ins->{'first_name'};
-                    $apellido_paterno = $ins->{'last_name'};
-                    $email_usuario = $ins->{'email_user'};
-                    $username = $ins->{'username'};
-                    $password = $ins->{'password'};
-                    $newpassword = MD5($password);
-                    $role = $ins->{'role'};
-                    $query2 =  "INSERT INTO users(first_name,last_name,email_user,username,password,id_role,status)VALUES('$nombre_usuario','$apellido_paterno','$email_usuario','$username','$newpassword',$role,$status);";
-                    $result2 = mysqli_query($con, $query2);
-                    if (!$result2) {
-                        $message = "Error al registrar al usuario";
-                    }
-                    $message = 'El usuario '.$ins->{'first_name'}.', ha sido registrado con exito.';
-                    $codestate = 1;
-                }
+            $nombre_usuario = $ins->{'first_name'};
+            $apellido_paterno = $ins->{'last_name'};
+            $email_usuario = $ins->{'email_user'};
+            $username = $ins->{'username'};
+            $password = $ins->{'password'};
+            $newpassword = MD5($password);
+            $role = $ins->{'role'};
+            $query2 =  "INSERT INTO users(first_name,last_name,email_user,username,password,id_role,status)VALUES('$nombre_usuario','$apellido_paterno','$email_usuario','$username','$newpassword',$role,$status);";
+            $result2 = mysqli_query($con, $query2);
+            if (!$result2) {
+                $message = "Error al registrar al usuario";
             }
+            $message = 'El usuario '.$ins->{'first_name'}.', ha sido registrado con exito.';
+            $codestate = 1;
             return json_encode(array('code' => $codestate, 'message' => $message, 'sql' => $query2));
 
         }

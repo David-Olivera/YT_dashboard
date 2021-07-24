@@ -3,7 +3,8 @@
 	// Connect database 
 
 	require_once('../config/conexion.php');
-
+	session_start();
+	$id_role = $_SESSION['id_role'];
 	$limit = 80;
 
 	if (isset($_POST['page_no'])) {
@@ -35,8 +36,12 @@
 								<th>Usuario</th>
 								<th>Teléfono</th>
 								<th class='hidden-sm'>Registro</th>
-								<th>Docs</th>
-								<th>Saldo</th>
+								<th>Docs</th>";
+			if($id_role == 1){
+				$output.="
+								<th>Saldo</th>";
+			}	
+			$output.="
 								<th>CASH</th>
 								<th>CARD</th>
 								<th>PAYPAL</th>
@@ -59,7 +64,7 @@
 				if (isset($ins_sql->id_agencies_docs)) {
 					$class_docs = "btn btn-sm btn-black";
 				}
-				$query_electronic_purse = "SELECT SUM(amount_electronic) as total FROM electronic_purse WHERE id_agency = {$row['id_agency']};";
+				$query_electronic_purse = "SELECT SUM(amount_electronic) as total, status as sta FROM electronic_purse WHERE id_agency = {$row['id_agency']};";
 				$result_electronic_purse = mysqli_query($con, $query_electronic_purse);
 				$class_ep ="btn btn-outline-success btn-sm";
 				if ($result_electronic_purse){
@@ -96,7 +101,13 @@
 											<td  >{$row['phone_agency']}</td>
 											<td class='hidden-sm'>{$row['register_date']}</td>
 											<td class='text-center'><a href='#' id='load_docs' class='$class_docs' datagen='{$row['id_agency']}' data-toggle='modal' data-target='#exampleModal' title='Subir documentos'><i class='fas fa-file-upload'></i></a></td>
+											";
+								if($id_role == 1){
+									$output.="
 											<td class='text-center'><a href='#' id='load_ep' class='$class_ep' dataname='{$row['name_agency']}' datagen='{$row['id_agency']}' data-toggle='modal' data-target='#electronicPurseModal' title='Monedero Electronico'><i class='fas fa-money-check-alt'></i></a></td>	
+									";
+								}	
+								$output.="
 											<td>
 												<div class='form-check '>
 													<input type='checkbox' class='settingCash' data-cash='{$row['id_agency']}' $checkedCash ><br /> 
@@ -185,6 +196,11 @@
 									<td>
 										<div class='form-check '>
 										<input type='checkbox' class='settingYT' data-yt='{$row['id_agency']}' $checkedYT ><br /> 
+										</div>
+									</td>
+									<td>
+										<div class='form-check '>
+										<input type='checkbox' class='settingOperadora' data-op='{$row['id_agency']}' $checkedOperadora ><br /> 
 										</div>
 									</td>
 									<td class='text-center text-center'>

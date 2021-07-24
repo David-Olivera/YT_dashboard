@@ -140,6 +140,22 @@
 						case 'deposit':
 							$newnamepay = "DEPOSITO";
 							break;
+							
+						case 'a_pa':
+							$newnamepay = "SITIO WEB - PAGO AL ABORDAR";
+							break;
+								
+						case 'a_transfer':
+							$newnamepay = "SITIO WEB - TRANSFERENCIA";
+							break;
+							
+						case 'a_paypal':
+							$newnamepay = "SITIO WEB - PAYPAL";
+							break;
+							
+						case 'a_card':
+							$newnamepay = "SITIO WEB - TARJETA";
+							break;
 					}
 					switch ($row['status_reservation']) {
 						case 'RESERVED':
@@ -258,6 +274,50 @@
 								<option value='card'>TARJETA</option>
 							</select>";
 							break;
+							
+						case 'a_pa':
+							$newpayment .= "<select class='form-control-sm' name='new_method_payment' code='{$row['code_invoice']}' data='{$row['id_reservation']}' id='new_method_payment'>
+								<option value='{$row['method_payment']}'>{$newnamepay}</option>
+								<option value='oxxo'>OXXO</option>
+								<option value='transfer'>TRANSFERENCIA</option>
+								<option value='airport'>AEROPUERTO</option>
+								<option value='paypal'>PAYPAL</option>
+								<option value='card'>TARJETA</option>
+							</select>";
+							break;
+							
+						case 'a_transfer':
+							$newpayment .= "<select class='form-control-sm' name='new_method_payment' code='{$row['code_invoice']}' data='{$row['id_reservation']}' id='new_method_payment'>
+								<option value='{$row['method_payment']}'>{$newnamepay}</option>
+								<option value='oxxo'>OXXO</option>
+								<option value='transfer'>TRANSFERENCIA</option>
+								<option value='airport'>AEROPUERTO</option>
+								<option value='paypal'>PAYPAL</option>
+								<option value='card'>TARJETA</option>
+							</select>";
+							break;
+							
+						case 'a_paypal':
+							$newpayment .= "<select class='form-control-sm' name='new_method_payment' code='{$row['code_invoice']}' data='{$row['id_reservation']}' id='new_method_payment'>
+								<option value='{$row['method_payment']}'>{$newnamepay}</option>
+								<option value='oxxo'>OXXO</option>
+								<option value='transfer'>TRANSFERENCIA</option>
+								<option value='airport'>AEROPUERTO</option>
+								<option value='paypal'>PAYPAL</option>
+								<option value='card'>TARJETA</option>
+							</select>";
+							break;
+							
+						case 'a_card':
+							$newpayment .= "<select class='form-control-sm' name='new_method_payment' code='{$row['code_invoice']}' data='{$row['id_reservation']}' id='new_method_payment'>
+								<option value='{$row['method_payment']}'>{$newnamepay}</option>
+								<option value='oxxo'>OXXO</option>
+								<option value='transfer'>TRANSFERENCIA</option>
+								<option value='airport'>AEROPUERTO</option>
+								<option value='paypal'>PAYPAL</option>
+								<option value='card'>TARJETA</option>
+							</select>";
+							break;
 					}
 					$new_nameagency = "";
                     if($row['id_agency'] || $row['of_the_agency']){
@@ -323,10 +383,28 @@
 			echo $output;
 
 		}else{
+			$output.="
+			<div class='w-100 pb-2'>
+				<div class='row'>
+					<div class='col-lg-12 text-right'>
+						<a href='#' class='btn  btn btn-outline-dark btn-sm' data-animation='fadeInLeft' id='view_all_reservations' data-delay='.8s'><i class='fas fa-times'></i></a><br>
+					</div>
+				</div>
+			</div>
+			";
 			$output.="<p>No se encontro ninguna reservación registrada</p>";
 			echo $output;
 		}
 	}else{
+		$output.="
+		<div class='w-100 pb-2'>
+			<div class='row'>
+				<div class='col-lg-12 text-right'>
+					<a href='#' class='btn  btn btn-outline-dark btn-sm' data-animation='fadeInLeft' id='view_all_reservations' data-delay='.8s'><i class='fas fa-times'></i></a><br>
+				</div>
+			</div>
+		</div>
+		";
 		$output.="<p>No se encontro ninguna reservación registrada</p>";
 		echo $output;
 	}

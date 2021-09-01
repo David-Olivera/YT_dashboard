@@ -2,6 +2,7 @@ $(function(){
     $('#sidebar, #content').toggleClass('active');
     $('.alert-msg').hide();
     $('#alert-msg-c').hide();
+    $('#alert-msg-expense').hide();
     var con = 0;
     let search ="";
     loadConciliations(con, search, f_llegada ="", f_salida ="", type_search = 0);
@@ -622,9 +623,9 @@ $(function(){
           url: '../../helpers/conciliations.php',
           type: 'POST',
           beforeSend: function(){
-            $('#btnSetCharge').prop('disabled', true);
           },
           success: function(res){
+            $('#frmSetCharge').trigger('reset');
             if (res == 1) {
             $('#addPayModal').modal('hide');
             $('.alert-msg').show();
@@ -661,26 +662,43 @@ $(function(){
         confirm("¿Esta seguro de dar esta reservación en cortesia?");
       }
       if ((text == 'CANCELLED') && (transfer == 'REDHH' || transfer == 'RED')) {
-          $('#cancelationModal').modal('show');
-          $('#content_type_cs').hide();
-          $('#inp_selected').val(text);
-          $('#inp_reservation').val(id);
-          $('#inp_code').val(code);
-          $('#inp_transfer').val(transfer);
-    return false;
+              $('#cancelationModal').modal('show');
+              $('#content_type_cs').hide();
+              $('#inp_selected').val(text);
+              $('#inp_reservation').val(id);
+              $('#inp_code').val(code);
+              $('#inp_transfer').val(transfer);
+        return false;
       }
       var payment = {
-          'id': id,
-          'value': stts,
-          'transfer': transfer,
-          'text': text,
-          'total_cost': total_cost,
-          'currency': currency,
-          'user': id_user,
-          'code': code,
-          'setstatusmet': 1
+              'id': id,
+              'value': stts,
+              'transfer': transfer,
+              'text': text,
+              'total_cost': total_cost,
+              'currency': currency,
+              'user': id_user,
+              'code': code,
+              'setstatusmet': 1
       };
-      $.ajax({
+      if (text == 'COMPLETED') {
+        if (confirm('Si cambia al estado COMPLETED la reservación se conciliara automaticamente, ¿Esta seguro de hacer esta acción?')) {
+          $.ajax({
+              data: payment,
+              url: '../../helpers/conciliations.php',
+              type: 'post',					
+              beforeSend: function(){
+              },
+              success: function(data){
+                  $('html, body').animate({scrollTop: 0}, 600);
+                  $('.alert-msg').show();
+                  $('#text-msg').val(data);
+                  loadConciliations(con=0, search, f_llegada ="", f_salida ="", type_search = 0);
+              }
+          });
+        }
+      }else{
+        $.ajax({
           data: payment,
           url: '../../helpers/conciliations.php',
           type: 'post',					
@@ -692,7 +710,8 @@ $(function(){
               $('#text-msg').val(data);
               loadConciliations(con=0, search, f_llegada ="", f_salida ="", type_search = 0);
           }
-      });
+        });
+      }
     });
     $(document).on('click', '#cancelButtonCancelation', function(){
         $('#cancelationModal').modal('hide');
@@ -880,4 +899,117 @@ $(function(){
           $('#btn_dowload_report_c').html('<span>Descargar</span>'); 
 
     });
+
+    $(document).on('click', '.load_expenses', function(){
+      let element = $(this)[0].parentElement.parentElement;
+      let id = $(element).attr('reserva-re');
+      let sc = $(element).attr('sc');
+      loadExpenses(id, sc);
+    });
+
+    $(document).on('click', '#btn_delete_expense', function(){
+      if (confirm('¿Esta seguro de querer eliminar este deposito?')) {
+        let element = $(this)[0].parentElement.parentElement;
+        let id = $(element).attr('expes');
+        let id_res = $(element).attr('res');
+        let sc = $(element).attr('sc');
+        const postDatas = {
+            'id': id,
+            'id_res': id_res,
+            'action': 'delete_data_expense'
+        };
+        
+        $.ajax({
+            data: postDatas,
+            url:'../../helpers/conciliations.php',
+            type:'POST',
+            success: function(data){
+              console.log(data);
+                if (data == 1) {
+                    $('#alert-msg-expense').addClass(' alert-info');
+                    $('#alert-msg-expense').show();
+                    $('#text-msg-expense').val('El deposito a sido eliminado correctamente');
+                    setTimeout(function(){ $('#alert-msg-expense').hide('slow'); }, 3000);
+                    loadExpenses(id_res,sc);
+                    loadConciliations(sc, code="", f_llegada ="", f_salida ="", type_search = 0);
+                }else{
+                    loadExpenses(id_res, sc);
+                    $('#alert-msg-expense').addClass(' alert-danger');
+                    $('#alert-msg-expense').show();
+                    $('#text-msg-expense').val('Error al eliminar el deposito');
+                    setTimeout(function(){ $('#alert-msg-expense').hide('slow'); }, 3000);
+                    loadConciliations(sc, code="", f_llegada ="", f_salida ="", type_search = 0);
+                }
+            }
+
+        });
+      }
+    });
+
+    function loadExpenses(id, sc){
+      function loadData(page){
+        const postData = {
+            'page_no': page,
+            'id': id,
+            'sc': sc,
+            'action': 'get_expenses'
+        };
+        $.ajax({
+            url  : "../../helpers/conciliations.php",
+            type : "POST",
+            cache: false,
+            data : postData,
+            success:function(response){
+              if (response != "") {             
+                $("#content_expenses").html(response); 
+              }
+            }
+        });
+      }
+      loadData();
+      // Pagination code
+      $(document).on("click", ".pagination li a", function(e){
+          e.preventDefault();
+          var pageId = $(this).attr("id");
+          loadData(pageId);
+      });
+      // New Ordenamiento de tabla
+      $(document).on("click", "th", function(){
+        var table = $(this).parents('table').eq(0)
+        var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()))
+        this.asc = !this.asc
+        if (!this.asc) {
+          rows = rows.reverse()
+        }
+        for (var i = 0; i < rows.length; i++) {
+          table.append(rows[i])
+        }
+        setIcon($(this), this.asc);
+      })
+    
+      function comparer(index) {
+        return function(a, b) {
+          var valA = getCellValue(a, index),
+            valB = getCellValue(b, index)
+          return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.localeCompare(valB)
+        }
+      }
+    
+      function getCellValue(row, index) {
+        return $(row).children('td').eq(index).html()
+      }
+    
+      function setIcon(element, asc) {
+        $("th").each(function(index) {
+          $(this).removeClass("sorting");
+          $(this).removeClass("asc");
+          $(this).removeClass("desc");
+        });
+        element.addClass("sorting");
+        if (asc) element.addClass("asc");
+        else element.addClass("desc");
+      }
+    }
+    
+
 });

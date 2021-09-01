@@ -15,7 +15,7 @@
             $totalDeposits = $this->totalDeposits($id,$con);
             $msg ="";
             $status = 0;
-            if ($totalDeposits < $total_cost) {
+            if ($totalDeposits <= $total_cost) {
                 $query_me = "INSERT INTO expenses(expense_amount, type_currency, concept, id_reservation, id_user, date_expense, charge_type, inaccount) VALUES('$charge', '$currency','$concepto',$id, $id_user,'$today','D','$f_pago');";
                 $result_me = mysqli_query($con, $query_me);
                 if ($result_me) {
@@ -94,7 +94,15 @@
                                         }
                                     }
                                 }
-                            }      
+                            }   
+                            if($text == 'COMPLETED'){
+                              $query_uc = "UPDATE conciliation SET status = 1 WHERE id_reservation = $id";
+                              echo $query_uc;
+                              $result_uc = mysqli_query($con, $query_uc);
+                              if($result_uc){
+                                $status = 1;
+                              }
+                            }   
                             if ($status == 1) {
                                 $message = "Se a cambiado correctamente el estado de la reservacion con ID $code a $text.";
                             }else{
@@ -259,6 +267,90 @@
                     <p><small>El archivo $name_doc a sido eliminado correctamente</small> <i class='approved fas fa-check-circle text-success'></i></p>
                 </div>";
             return $message;
+        }
+        function getExpenses($obj){
+            $ins = json_decode($obj);
+            include('../config/conexion.php');
+            $id_res = $ins->{'id'};
+            $sc = $ins->{'sc'};
+            $query = "SELECT * FROM expenses as E INNER JOIN users AS U ON E.id_user = U.id_user WHERE E.id_reservation = $id_res and E.charge_type = 'D'; ";
+            $result = mysqli_query($con, $query);
+            $output ="";
+            if (mysqli_num_rows($result) > 0) {
+                $output.="
+                
+                        <table class='table table-hover table-striped table-bordered table-sm' cellspacing='0' id='tablaUsuarios'>
+                            <thead class='m-3'>
+                                <tr >
+                                    <th>Monto</th>
+                                    <th>Moneda</th>
+                                    <th style='width:200px;'>Concepto</th>
+                                    <th>Usuario</th>
+                                    <th style='width:100px;'>Fecha</th>
+                                    <th></th>
+                                    </tr>
+                            </thead>
+                            <tbody>";
+                while($row = mysqli_fetch_array($result)){
+                    $output.="
+                                <tr expes='{$row['id_expenses']}' res='{$row['id_reservation']}' sc='{$sc}'>
+                                    <td>{$row['expense_amount']}</td>
+                                    <td>{$row['type_currency']}</td>
+                                    <td>{$row['concept']}</td>
+                                    <td>{$row['username']}</td>
+                                    <td>{$row['date_expense']}</td>
+                                    <td><a href='#' id='btn_delete_expense' class='btn btn-danger btn-sm'><i class='fas fa-trash-alt'></i></a></td>
+                                </tr>
+                    ";
+                }
+            }else{
+                $output ="<p><small>No se encontro ningún registro de depositos</small></p>";
+            }
+            $con = null;
+            return $output;
+        }
+        function deleteExpenses($obj){
+            $ins = json_decode($obj);
+            include('../config/conexion.php');
+            $id_res = $ins->{'id'};
+            $id_resv = $ins->{'id_res'};
+            $query = "DELETE FROM expenses WHERE id_expenses = $id_res";
+            $result = mysqli_query($con, $query);
+            $status =0;
+                
+            if ($result) {
+                $status = 1;
+                $query_con = "SELECT status FROM conciliation WHERE id_reservation = $id_resv ";
+                $result_con = mysqli_query($con, $query_con);
+                $ins_con = mysqli_fetch_object($result_con);
+                $status_con = 0;
+                if (isset($ins_con->status)) {
+                    $status_con = $ins_con->status;
+                }
+    
+                $query_price = "SELECT * FROM reservation_details WHERE id_reservation = $id_resv";
+                $result_price = mysqli_query($con, $query_price);
+                $ins_pri = mysqli_fetch_object($result_price);            
+                $total = $ins_pri->total_cost != 0 ? $ins_pri->total_cost : 0;
+    
+                $query_expense = "SELECT SUM(expense_amount) as total FROM expenses WHERE id_reservation like $id_resv and charge_type = 'D';";
+                $result_expense = mysqli_query($con, $query_expense);
+                $ins_exp = mysqli_fetch_object($result_expense);            
+                $total_expense = $ins_exp->total != 0 ? $ins_exp->total : 0;
+    
+                if ($status_con == 1 && $total_expense <= $total) {
+                    $query_uc = "UPDATE conciliation SET status = 0 WHERE id_reservation = $id_resv";
+                    $result_uc = mysqli_query($con, $query_uc);
+                    if ($result_uc) {
+                        $query_sr = "UPDATE reservations SET status_reservation='RESERVED' WHERE id_reservation = $id_resv";
+                        $result_sr = mysqli_query($con, $query_sr);
+                        $status = 1;
+                    }
+                }
+            }
+            $con = null;
+            return $status;
+
         }
     }
 ?>

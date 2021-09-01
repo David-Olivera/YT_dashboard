@@ -212,6 +212,7 @@
                                 $result_reservation = mysqli_query($con, $query_reservation);
     
                                 $query_cost_total = "UPDATE reservation_details SET $new_details_reservation , agency_commision = '$new_commision', total_cost_commision = '$new_total_cost', total_cost = '$new_total_cost_neto' WHERE id_reservation = $id;";
+                                
                                 $result_cost_total = mysqli_query($con, $query_cost_total);
     
                                 if ($result_status && $result_bitacora && $result_actividad && $result_reservation && $result_cost_total) {
@@ -366,6 +367,10 @@
                             $query_ac = "INSERT INTO activities(activity_type, activity_status, id_user, id_reservation, change_date) VALUES('STATE', '$statusr', $user, $id, '$today');";
                             $result_ac = mysqli_query($con, $query_ac);
                             if ($result_ac) {
+                                if($statusr == 'COMPLETED'){ 
+                                    $query_uc = "UPDATE conciliation SET status = 1 WHERE id_reservation = $id";
+                                    $result_uc = mysqli_query($con, $query_uc);
+                                }
                                 $message = "Se a cambiado correctamente el estado de la reservacion con ID $code a $statusr.";
                             }else{
                                 $message = 'Lo sentimos, ocurrio un problema en la actualización del valor seleccionado';

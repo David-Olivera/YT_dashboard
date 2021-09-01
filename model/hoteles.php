@@ -25,6 +25,12 @@
                                 'name_zone' => $row2['name_zone']
                             ); 
                         }
+                    }else{$json[] = array(
+                        'id_hotel' => $row['id_hotel'],
+                        'name_hotel' => $row['name_hotel'],
+                        'name_zone' => ""
+                    );
+
                     }
                 }
                 $jsonString = json_encode($json);

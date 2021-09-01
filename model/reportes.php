@@ -283,13 +283,16 @@
                                     $arrvial_or_exit
                             ";
                         }
+                        $name_z = "";
+                        if (isset($row['name_zone'])) {
+                            $name_z = $row['name_zone'];
+                        }
                         $template.="
-                        $query
                                     <td>{$row['code_invoice']}</td>
                                     <td>{$row['name_client']} {$row['last_name']} {$row['mother_lastname']}</td>
                                     <td>{$row['email_client']}</td>
                                     <td>{$row['phone_client']}</td>
-                                    <td>{$row['name_zone']}</td>
+                                    <td>{$name_z}</td>
                                     <td>{$newhotel}</td>
                                     <td>{$row['number_adults']}</td>
                                     <td>{$row['type_service']}</td>
@@ -320,11 +323,11 @@
                     ";
                 }else{
                 
-                    $template = 'No se encontro ninguna reservacion'.$query;
+                    $template = 'No se encontro ninguna reservacion';
                 }
             }else{
                 
-                $template = 'No se encontro ninguna reservacion'.$query;
+                $template = 'No se encontro ninguna reservacion';
             }
             return $template;
         }
@@ -342,6 +345,7 @@
             $condition_agency = "";
             $inner_conciliation = "";
             $condition_conciliation = "";
+            $condition_tc = "";
             $name_zona = "";
             $and = "";
             $template = "";
@@ -362,20 +366,32 @@
                 $condition_agency = "$and (A.name_agency = '$name_agency') ";
                 $and = "AND "; 
             }
-            if ($type_conciliation != '') {
+            if ($type_conciliation != 3) {
+                if ($type_conciliation == 0) {
+                    $condition_tc = " AND R.status_reservation NOT IN ('COMPLETED') ";
+                }
                 $inner_conciliation = "INNER JOIN conciliation AS CO ON R.id_reservation = CO.id_reservation";
                 $condition_conciliation = "$and (CO.status = $type_conciliation)";
-                $and = "AND "; 
             }
-            $query ="SELECT * FROM clients AS C INNER JOIN reservations AS R ON C.id_client = R.id_client INNER JOIN reservation_details AS RD ON R.id_reservation = RD.id_reservation $inner_agency $inner_conciliation  WHERE $condition_date $condition_agency $condition_conciliation ORDER BY R.id_agency  DESC";
+            if ($type_conciliation = 3) {
+                $inner_conciliation = "INNER JOIN conciliation AS CO ON R.id_reservation = CO.id_reservation";
+                $condition_conciliation = "";
+            }
+            $query ="SELECT * FROM clients AS C INNER JOIN reservations AS R ON C.id_client = R.id_client INNER JOIN reservation_details AS RD ON R.id_reservation = RD.id_reservation $inner_agency $inner_conciliation  WHERE $condition_date $condition_agency $condition_conciliation $condition_tc AND R.status_reservation NOT IN ('CANCELLED') ORDER BY R.id_agency  DESC";
             $result = mysqli_query($con, $query);
             if ($result) {
 		        if (mysqli_num_rows($result) > 0) {
                     $template.="
-                    $query
 					    <table class='table table-hover table-striped table-bordered table-sm' cellspacing='0'>
                             <thead class='m-3'>
                                 <tr >
+                                ";
+                    if ($type_conciliation = 3) {
+                        $template.="
+                                    <th>Status Concilia</th>
+                        ";
+                    }
+                    $template.="
                                     <th>ID</th>
                                     <th>Agencia</th>
                                     <th>Cliente</th>
@@ -411,23 +427,23 @@
                         
                         if ($row['type_transfer'] == 'SEN/AH' ) {
                             $newtype = 'Sencillo Aeropuerto > Hotel';
-                            $newhotel = $row['transfer_destiny'];
+                            $newhotel = utf8_decode($row['transfer_destiny']);
                         }
                         if ($row['type_transfer'] == 'SEN/HA' ) {
                             $newtype = 'Sencillo Hotel > Aeropuerto';
-                            $newhotel = $row['transfer_destiny'];
+                            $newhotel = utf8_decode($row['transfer_destiny']);
                         }
                         if ($row['type_transfer'] == 'RED' ) {
                             $newtype = 'Redondo';
-                            $newhotel = $row['transfer_destiny'];
+                            $newhotel = utf8_decode($row['transfer_destiny']);
                         }
                         if ($row['type_transfer'] == 'REDHH' ) {
                             $newtype = 'Redondo - Hotel > Hotel';
-                            $newhotel = $row['transfer_destiny'].' > '.$row['destiny_interhotel'];
+                            $newhotel = utf8_decode($row['transfer_destiny'].' > '.$row['destiny_interhotel']);
                         }
                         if ($row['type_transfer'] == 'SEN/HH' ) {
                             $newtype = 'Sencillo - Hotel > Hotel';
-                            $newhotel = $row['transfer_destiny'].' > '.$row['destiny_interhotel'];
+                            $newhotel = utf8_decode($row['transfer_destiny'].' > '.$row['destiny_interhotel']);
                         }
                         if ($row['type_currency'] == 'mx') {
                             $newcurrency = 'MXN';
@@ -466,11 +482,20 @@
                             }
                             $query_agency = "SELECT * FROM agencies WHERE id_agency like $id_ag;";
                             $result_a =  mysqli_query($con, $query_agency);
+                            $new_nameagency  = "";
+                            $new_emailagency = "";
+                            $new_phoneagency = "";
                             if ($result_a) {
                                 $ins = mysqli_fetch_object($result_a);
-                                $new_nameagency = utf8_decode($ins->name_agency);
-                                $new_emailagency = utf8_decode($ins->email_pay_agency);
-                                $new_phoneagency = utf8_decode($ins->phone_agency);
+                                if (isset($ins->name_agency)) {
+                                    $new_nameagency = utf8_decode($ins->name_agency);
+                                }
+                                if (isset($ins->email_pay_agency)) {
+                                    $new_emailagency = utf8_decode($ins->email_pay_agency);
+                                }
+                                if (isset($ins->phone_agency)) {
+                                    $new_phoneagency = utf8_decode($ins->phone_agency);
+                                }
                             }
                         }
                         
@@ -480,19 +505,29 @@
                             $ins_t = mysqli_fetch_object($result_t);
                             $new_amount_total = $row['total_cost'] - $ins_t->total;
                         }
+                        $name_zona ="";
                         if ($row['transfer_destiny']) {
-                            $name_zona ="";
                             $query_zon = "SELECT * FROM hotels as H inner join rates_public as R on H.id_zone = R.id_zone WHERE H.name_hotel = '{$row['transfer_destiny']}';";
                             $result_z = mysqli_query($con, $query_zon);
                             if ($result_z) {
                                 $ins_zone = mysqli_fetch_object($result_z);
-                                if (!is_null($ins_zone->name_zone)) {
+                                if (isset($ins_zone->name_zone)) {
                                     $name_zona = $ins_zone->name_zone;
                                 }
                             }
                         }
+                        $conciliation = "No Conciliado";
+                        if ($row['status'] = 1) {
+                            $conciliation = "Conciliado";
+                        }
                         $template.="
-                            <tr>
+                            <tr>";
+                            if ($type_conciliation = 3) {
+                                $template.="
+                                            <td>{$conciliation}</td>
+                                ";
+                            }
+                        $template.="
                                     <td>{$row['code_invoice']}</td>
                                     <td class='hidden-sm'>{$new_nameagency}</td>
                                     <td>{$newnameclient}</td>

@@ -389,7 +389,7 @@
             }
     }else{
         if ($navs == 'LLEGADA') {
-            $query = "SELECT * FROM (clients AS C INNER JOIN reservations AS R ON C.id_client = R.id_client INNER JOIN reservation_details AS D ON R.id_reservation = D.id_reservation) WHERE D.date_arrival >= '$today' AND D.date_arrival <= '$today' ORDER BY D.date_arrival ASC, D.time_arrival ASC ;";
+            $query = "SELECT * FROM (clients AS C INNER JOIN reservations AS R ON C.id_client = R.id_client INNER JOIN reservation_details AS D ON R.id_reservation = D.id_reservation) WHERE D.date_arrival >= '$today' AND D.date_arrival <= '$today' ORDER BY D.date_arrival ASC, D.time_arrival ASC LIMIT 2;";
             $result = mysqli_query($con, $query);
             $output = "";
             $output2 = "";

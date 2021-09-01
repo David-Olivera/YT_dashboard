@@ -124,6 +124,7 @@ $(function(){
                                         <th>Agencia</th>
                                         <th  class='hidden-sm'>Email Contacto</th>
                                         <th  class='hidden-sm'>Email Pago</th>
+                                        <th  class='hidden-sm'>Contacto</th>
                                         <th>Usuario</th>
                                         <th>Teléfono</th>
                                         <th  class='hidden-sm'>Registro</th>
@@ -142,12 +143,17 @@ $(function(){
                                 </thead>
                                 <tbody>`;
                             agencies.forEach(agencies => {
+                                let name_contact = "";
+                                if (agencies.name_contact != "" && agencies.last_name_contact != "") {
+                                    name_contact = agencies.name_contact + " " +agencies.last_name_contact;
+                                }
                                 template += `
                                 <tr agency-id='${agencies.id_agency}'>
 											<td>${agencies.id_agency}</td>
 											<td>${agencies.name_agency}</td>
 											<td  class='hidden-sm'>${agencies.email_agency}</td>
 											<td  class='hidden-sm'>${agencies.email_agency_pay}</td>
+											<td  class='hidden-sm'>${name_contact} </td>
 											<td id='usuario'>${agencies.username}</td>
 											<td>${agencies.phone_agency}</td>
 											<td  class='hidden-sm'>${agencies.register_date}</td>
@@ -245,6 +251,8 @@ $(function(){
             'email_agency': $('#email_agencia').val(),
             'email_agency_pay': $('#email_agencia_pay').val(),
             'phone_agency': $('#telefono_agencia').val(),
+            'name_contact_agency': $('#name_contact_agencia').val(),
+            'last_contact_agencia': $('#last_contact_agencia').val(),
             'username': $('#usuario_agencia').val(),
             'register_date': $('#fecha_registro').val(),
             'password': $('#password').val(),
@@ -261,8 +269,18 @@ $(function(){
 			$('#email_agnecia').focus();
 			return false;  
         }
-        if (postDatas.username == null || postDatas.username.length == 0 || /^\s+$/.test(postDatas.username)) {
+        if (postDatas.name_contact_agency == null || postDatas.name_contact_agency.length == 0 || /^\s+$/.test(postDatas.name_contact_agency)) {
 			alert('Es necesario contar con un nombre de usuario.');
+			$('#name_contact_agencia').focus();
+			return false;
+        }
+        if (postDatas.last_contact_agencia == null || postDatas.last_contact_agencia.length == 0 || /^\s+$/.test(postDatas.last_contact_agencia)) {
+			alert('Es necesario contar con el apellido del contacto de la agencia.');
+			$('#last_contact_agencia').focus();
+			return false;
+        }
+        if (postDatas.username == null || postDatas.username.length == 0 || /^\s+$/.test(postDatas.username)) {
+			alert('Es necesario contar con un nombre de contacto de la agencia.');
 			$('#usuario_agencia').focus();
 			return false;
         }
@@ -821,11 +839,38 @@ $(function(){
             'email_agency': $('#email_agencia_edit').val(),
             'email_agency_pay': $('#email_agencia_edit_pay').val(),
             'phone_agency': $('#telefono_agencia_edit').val(),
+            'name_contact_agency': $('#name_contact_agencia_edit').val(),
+            'last_contact_agencia': $('#last_contact_agencia_edit').val(),
             'username': $('#usuario_agencia_edit').val(),
             'password': $('#password_edit').val(),
             'edit': 'true',
 
         };
+        if (postDatas.name_agency == null || postDatas.name_agency.length == 0 || /^\s+$/.test(postDatas.name_agency)) {
+            alert('El nombre de la Agencia es un campo obligatorio.');
+            $('#nombre_agencia_edit').focus();
+            return false;
+        }
+        if (!(/\w+([-+.']\w+)*@\w+([-.]\w+)/.test(postDatas.email_agency))) {
+			alert('En necesario ingresar una dirección de correo valida.');
+			$('#email_agencia_edit').focus();
+			return false;  
+        }
+        if (postDatas.name_contact_agency == null || postDatas.name_contact_agency.length == 0 || /^\s+$/.test(postDatas.name_contact_agency)) {
+			alert('Es necesario contar con un nombre de usuario.');
+			$('#name_contact_agencia_edit').focus();
+			return false;
+        }
+        if (postDatas.last_contact_agencia == null || postDatas.last_contact_agencia.length == 0 || /^\s+$/.test(postDatas.last_contact_agencia)) {
+			$('#last_contact_agencia_edit').focus();
+			alert('Es necesario contar con el apellido del contacto de la agencia.');
+			return false;
+        }
+        if (postDatas.username == null || postDatas.username.length == 0 || /^\s+$/.test(postDatas.username)) {
+			alert('Es necesario contar con un nombre de contacto de la agencia.');
+			$('#usuario_agencia_edit').focus();
+			return false;
+        }
         let url = '../../helpers/agencias.php';
         $.post(url, postDatas, function(response) {
             $("#table-data").show('slow');
@@ -1065,6 +1110,8 @@ $(function(){
             $('#email_agencia_edit').val(agency.email_agency);
             $('#email_agencia_edit_pay').val(agency.email_agency_pay);
             $('#telefono_agencia_edit').val(agency.phone_agency);
+            $('#name_contact_agencia_edit').val(agency.name_contact);
+            $('#last_contact_agencia_edit').val(agency.last_name_contact);
             $('#usuario_agencia_edit').val(agency.username);
             $('#password_edit').val('');
             $('#agency-id').val(agency.id_agency);
@@ -1090,6 +1137,8 @@ $(function(){
             $('#email_agencia_edit').val(agency.email_agency);
             $('#email_agencia_edit_pay').val(agency.email_agency_pay);
             $('#telefono_agencia_edit').val(agency.phone_agency);
+            $('#name_contact_agencia_edit').val(agency.name_contact);
+            $('#last_contact_agencia_edit').val(agency.last_name_contact);
             $('#usuario_agencia_edit').val(agency.username);
             $('#agency-id').val(agency.id_agency);
             edit = true;

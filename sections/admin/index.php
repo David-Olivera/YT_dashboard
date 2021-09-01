@@ -30,8 +30,6 @@ if (isset($_SESSION['id_user'])) {
 <div class="wrapper">
             <?PHP
                 include('../include/navigation.php');
-                print_r('LOS DATOS DE LA SESSION ');
-                print_r($_SESSION);
             ?>
              <div class=" d-flex justify-content-center" id="content-alert-msg">
                 <div class="alert alert-info alert-msg alert-dismissible w-100">

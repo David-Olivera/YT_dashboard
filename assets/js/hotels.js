@@ -118,11 +118,17 @@ $(function(){
                                 <tbody>
                             `;
                             agencies.forEach(hoteles => {
+                                let name_z = "";
+                                if (hoteles.name_zone != "" || hoteles.name_zone != "undefined") {
+                                    name_z = hoteles.name_zone; 
+                                }else{
+                                    name_z = "No";
+                                }
                                 template += `
                                 <tr hotel-id="${hoteles.id_hotel}">
                                     <td>${hoteles.id_hotel}</td>
                                     <td>${hoteles.name_hotel}</td>
-                                    <td>${hoteles.name_zone}</td>
+                                    <td>${name_z}</td>
                                     <td class='text-center text-center'>
                                         <a href="#" class="hotel-item btn btn-primary btn-sm " ><i class="fas fa-edit" ></i></a>
                                     </td>

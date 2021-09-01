@@ -47,16 +47,17 @@
 			$complete_query_search = "((D.date_arrival BETWEEN '$f_llegada' AND '$f_salida') or (D.date_exit BETWEEN '$f_llegada' AND '$f_salida')) ";
 		}
 		$query = "SELECT * FROM reservations AS R INNER JOIN reservation_details AS D ON R.id_reservation = D.id_reservation
-		INNER JOIN clients AS C ON C.id_client = R.id_client INNER JOIN agencies AS A ON R.id_agency = A.id_agency WHERE $complete_query_search ;";
+		INNER JOIN clients AS C ON C.id_client = R.id_client INNER JOIN agencies AS A ON R.id_agency = A.id_agency WHERE $complete_query_search  LIMIT 2;";
 		$query_count = "SELECT count(*) as total FROM reservations AS R INNER JOIN reservation_details AS D ON R.id_reservation = D.id_reservation
-		INNER JOIN clients AS C ON C.id_client = R.id_client INNER JOIN agencies AS A ON R.id_agency = A.id_agency WHERE $complete_query_search ;";
+		INNER JOIN clients AS C ON C.id_client = R.id_client INNER JOIN agencies AS A ON R.id_agency = A.id_agency WHERE $complete_query_search;";
 	}else{
 		$query = "SELECT * FROM clients AS C 
-		INNER JOIN reservations AS R ON C.id_client = R.id_client INNER JOIN reservation_details AS D ON R.id_reservation = D.id_reservation WHERE (R.status_reservation LIKE '$navs') AND (R.date_register_reservation >= '$new_date') ORDER BY R.id_reservation  DESC ";
+		INNER JOIN reservations AS R ON C.id_client = R.id_client INNER JOIN reservation_details AS D ON R.id_reservation = D.id_reservation WHERE (R.status_reservation LIKE '$navs') AND (R.date_register_reservation >= '$new_date') ORDER BY R.id_reservation  DESC LIMIT 20";
 		$query_count = "SELECT count(*) as total FROM clients AS C 
-		INNER JOIN reservations AS R ON C.id_client = R.id_client INNER JOIN reservation_details AS D ON R.id_reservation = D.id_reservation WHERE (R.status_reservation LIKE '$navs') AND (R.date_register_reservation >= '$new_date') ORDER BY R.id_reservation  DESC ";
+		INNER JOIN reservations AS R ON C.id_client = R.id_client INNER JOIN reservation_details AS D ON R.id_reservation = D.id_reservation WHERE (R.status_reservation LIKE '$navs') AND (R.date_register_reservation >= '$new_date') ORDER BY R.id_reservation  DESC LIMIT 20";
 	}
 	$result = mysqli_query($con, $query);
+	
 	$output = "";
 	$output2 = "";
 	$output3 = "";
@@ -383,20 +384,14 @@
 			echo $output;
 
 		}else{
-			$output.="
-			<div class='w-100 pb-2'>
-				<div class='row'>
-					<div class='col-lg-12 text-right'>
-						<a href='#' class='btn  btn btn-outline-dark btn-sm' data-animation='fadeInLeft' id='view_all_reservations' data-delay='.8s'><i class='fas fa-times'></i></a><br>
-					</div>
-				</div>
-			</div>
-			";
+		
 			$output.="<p>No se encontro ninguna reservación registrada</p>";
 			echo $output;
 		}
 	}else{
 		$output.="
+		
+		$query
 		<div class='w-100 pb-2'>
 			<div class='row'>
 				<div class='col-lg-12 text-right'>

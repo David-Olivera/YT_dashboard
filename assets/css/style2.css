@@ -11,6 +11,12 @@
 #alert-msg{
     display: none !important;
 }
+.page-item{
+    font-size: 10px !important;
+}
+.page-link{
+    padding: .6em !important;
+}
 #circle_status_0{
     width: 10px;
     height: 10px;

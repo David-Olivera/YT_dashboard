@@ -44,7 +44,7 @@
                  </div>
                  <div class="form-group">
                     <label>Email</label>
-                    <input type="email" class="form-control" name="email" id="email" value=""  placeholder="Email" >
+                    <input type="text" class="form-control" name="email" id="email" value=""  placeholder="Email" >
                  </div>
                  <div class="form-group">
                     <label>Password</label>

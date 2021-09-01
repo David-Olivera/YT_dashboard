@@ -31,5 +31,15 @@
         $req = json_encode($request);
         echo $conciliation->delete_documents($req);
     }
+    if (isset($_POST['action']) && $_POST['action'] == 'get_expenses') {
+        $request = (object) $_POST;
+        $req = json_encode($request);
+        echo $conciliation->getExpenses($req);
+    }
+    if (isset($_POST['action']) && $_POST['action'] == 'delete_data_expense') {
+        $request = (object) $_POST;
+        $req = json_encode($request);
+        echo $conciliation->deleteExpenses($req);
+    }
 
 ?>

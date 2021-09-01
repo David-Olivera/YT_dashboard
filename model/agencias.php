@@ -41,6 +41,8 @@
                                     'name_agency' => $row['name_agency'],
                                     'email_agency' => $row['email_agency'],
                                     'email_agency_pay' => $row['email_pay_agency'],
+                                    'name_contact' => $row['name_contact'],
+                                    'last_name_contact' => $row['last_name_contact'],
                                     'phone_agency' => $row['phone_agency'],
                                     'username' => $row['username'],
                                     'password' => $row['password'],
@@ -87,13 +89,19 @@
                     $telefono_agencia = $ins->{'phone_agency'};
                     $new_telefono_agencia = mysqli_real_escape_string($con,$telefono_agencia);
 
+                    $name_contact_agency = $ins->{'name_contact_agency'};
+                    $new_name_contact_agency = mysqli_real_escape_string($con,$name_contact_agency);
+
+                    $last_contact_agencia = $ins->{'last_contact_agencia'};
+                    $new_last_contact_agencia = mysqli_real_escape_string($con,$last_contact_agencia);
+
                     $usuario_agencia = $ins->{'username'};
                     $new_usuario_agencia = mysqli_real_escape_string($con,$usuario_agencia);
 
                     $password = MD5($ins->{'password'});
                     $newpass = mysqli_real_escape_string($con,$password);
                     $fecha_registro = $today;
-                    $query2 =  "INSERT INTO agencies(name_agency,email_agency,email_pay_agency,phone_agency,username,register_date,password,status)VALUES('$new_nombre_agencia','$new_email_agencia','$new_email_agencia_pagos','$new_telefono_agencia','$new_usuario_agencia','$fecha_registro','$newpass',$status)";
+                    $query2 =  "INSERT INTO agencies(name_agency,email_agency,email_pay_agency,phone_agency,name_contact, last_name_contact,username,register_date,password,status)VALUES('$new_nombre_agencia','$new_email_agencia','$new_email_agencia_pagos','$new_telefono_agencia','$new_name_contact_agency','$new_last_contact_agencia','$new_usuario_agencia','$fecha_registro','$newpass',$status)";
                     $result2 = mysqli_query($con,$query2);
                     if ($result2) {
                         $idagency =  mysqli_insert_id($con);
@@ -129,6 +137,8 @@
                     'email_agency' => $row['email_agency'],
                     'email_agency_pay' => $row['email_pay_agency'],
                     'phone_agency' => $row['phone_agency'],
+                    'name_contact' => $row['name_contact'],
+                    'last_name_contact' => $row['last_name_contact'],
                     'username' => $row['username'],
                     'password' => $row['password']
                 );
@@ -341,6 +351,12 @@
             $telefono_agencia = $ins->{'phone_agency'};
             $new_telefono_agencia = mysqli_real_escape_string($con,$telefono_agencia);
 
+            $name_contact_agency = $ins->{'name_contact_agency'};
+            $new_name_contact_agency = mysqli_real_escape_string($con,$name_contact_agency);
+
+            $last_contact_agencia = $ins->{'last_contact_agencia'};
+            $new_last_contact_agencia = mysqli_real_escape_string($con,$last_contact_agencia);
+
             $usuario_agencia = $ins->{'username'};
             $new_usuario_agencia = mysqli_real_escape_string($con,$usuario_agencia);
             
@@ -350,9 +366,9 @@
             
             $query = "";
             if ($pass == '') {
-                $query ="UPDATE agencies SET name_agency = '$new_nombre_agencia', email_agency = '$new_email_agencia', email_pay_agency = '$new_email_agencia_pagos' ,phone_agency = '$new_telefono_agencia', username = '$new_usuario_agencia' WHERE id_agency = '$id_agencia'"; 
-            }else{
-                $query ="UPDATE agencies SET name_agency = '$new_nombre_agencia', email_agency = '$new_email_agencia', email_pay_agency = '$new_email_agencia_pagos' ,phone_agency = '$new_telefono_agencia', username = '$new_usuario_agencia', password = '$newpass' WHERE id_agency = '$id_agencia'";
+                $query ="UPDATE agencies SET name_agency = '$new_nombre_agencia', email_agency = '$new_email_agencia', email_pay_agency = '$new_email_agencia_pagos' ,phone_agency = '$new_telefono_agencia', name_contact = '$new_name_contact_agency', last_name_contact = '$new_last_contact_agencia', username = '$new_usuario_agencia' WHERE id_agency = '$id_agencia'"; 
+                }else{
+                $query ="UPDATE agencies SET name_agency = '$new_nombre_agencia', email_agency = '$new_email_agencia', email_pay_agency = '$new_email_agencia_pagos' ,phone_agency = '$new_telefono_agencia', name_contact = '$new_name_contact_agency', last_name_contact = '$new_last_contact_agencia', username = '$new_usuario_agencia', password = '$newpass' WHERE id_agency = '$id_agencia'";
             }
             $result = mysqli_query($con, $query);
             if (!$result) {

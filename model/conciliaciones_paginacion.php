@@ -20,6 +20,10 @@
 	$complete_query_search = "";
 	$tota_agency= "";
 	$query_total = "";
+	$query = "SELECT * FROM clients AS C INNER JOIN reservations AS R on C.id_client = R.id_client INNER JOIN reservation_details AS RD ON R.id_reservation = RD.id_reservation 
+	INNER JOIN conciliation AS CN ON R.id_reservation = CN.id_reservation
+	WHERE ((RD.date_arrival BETWEEN '$today' AND '$today') or (RD.date_exit BETWEEN '$today' AND '$today')) AND R.status_reservation NOT IN('CANCELLED') AND CN.`status` = $type ORDER BY R.id_agency  DESC LIMIT $offset, $limit;";
+
 	if (($_POST['search'] && $_POST['type_search']) || ($_POST['type_search'] && $_POST['search'] && $_POST['f_llegada'] && $_POST['f_salida'])) {
 		$text_search = $_POST['search'];
 		if ($_POST['type_search'] == 1) {
@@ -50,12 +54,7 @@
         INNER JOIN conciliation AS CN ON R.id_reservation = CN.id_reservation
         $complete_query_search  R.status_reservation NOT IN('CANCELLED') AND CN.`status` = $type  ORDER BY R.id_agency  DESC LIMIT $offset, $limit";
 	
-	}else{
-        $query = "SELECT * FROM clients AS C INNER JOIN reservations AS R on C.id_client = R.id_client INNER JOIN reservation_details AS RD ON R.id_reservation = RD.id_reservation 
-        INNER JOIN conciliation AS CN ON R.id_reservation = CN.id_reservation
-        WHERE ((RD.date_arrival BETWEEN '$today' AND '$today') or (RD.date_exit BETWEEN '$today' AND '$today')) AND R.status_reservation NOT IN('CANCELLED') AND CN.`status` = $type ORDER BY R.id_agency  DESC LIMIT $offset, $limit";
-	
-    }
+	}
 	$result = mysqli_query($con, $query);
 	$output = "";
 	$newrole ='';
@@ -127,7 +126,7 @@
 								<th class='hidden-sm'>Pax</th>
 								<th>Método de Pago</th>
 								<th>Tarifa Neta</th>
-								<th class='hidden-sm'>Total</th>
+								<th class='hidden-sm'>Pagado</th>
 								<th>CXC</th>
 								<th>TM</th>
 								<th>Estado</th>
@@ -154,10 +153,12 @@
 							break;
 					}
 					$new_amount_total = "";
-					$query_total = "SELECT SUM(expense_amount) as total FROM expenses WHERE id_reservation = $id_r;";
+					$query_total = "SELECT SUM(expense_amount) as total FROM expenses WHERE id_reservation = $id_r AND charge_type = 'D';";
 					$result_t = mysqli_query($con, $query_total);
+					$total_exp = 0;
 					if ($result_t) {
 						$ins_t = mysqli_fetch_object($result_t);
+						$total_exp = $ins_t->total != '' ? $ins_t->total : 0;
 						if ($row['method_payment'] == 'card' || $row['method_payment'] == 'paypal') {
 							$new_amount_total = $row['total_cost_commision'] - $ins_t->total;
 						}else{
@@ -178,12 +179,14 @@
 					}
 					$query_depo = "SELECT SUM(expense_amount) as total FROM expenses WHERE id_reservation like $id_r and charge_type = 'D'; ";
 					$result_de = mysqli_query($con, $query_depo);
+					
 					$new_total =0;
 					$btn_deposit ="<button type='button' disabled='disabled' class='btn btn-outline-dark btn-sm'><i class='fas fa-dollar-sign'></i> </button>     
 					";
 					if ($result_de) {
 						$ins_t = mysqli_fetch_object($result_de);
 						if($ins_t->total < $row['total_cost']){
+							$total_exp = $ins_t->total != '' ? $ins_t->total : 0;
 							$btn_deposit = "<a href='#' id='btn_add_deposit' reserva='{$row['id_reservation']}' total-cost='{$row['total_cost']}' currency='{$currency}'  conciliation='{$row['id_conciliation']}' code='{$row['code_invoice']}' class=' btn btn-outline-dark btn-sm' data-toggle='modal' data-target='#addPayModal'><i class='fas fa-dollar-sign'></i></a>";
 						}
 					}
@@ -312,20 +315,19 @@
 							}
                         }
                     }
+					$name_zona = "";
                     if ($row['transfer_destiny']) {
-                        $name_zona = "";
                         $query_zon = "SELECT * FROM hotels as H inner join rates_public as R on H.id_zone = R.id_zone WHERE H.name_hotel like '{$row['transfer_destiny']}';";
                         $result_z = mysqli_query($con, $query_zon);
                         if ($result_z) {
-                            $ins = mysqli_fetch_object($result_z);
-                            $name_zona = "";
-							if (isset($ins->name_zone)) {
-								$name_zona = $ins->name_zone;
+                            $ins_z = mysqli_fetch_object($result_z);
+							if (isset($ins_z->name_zone)) {
+								$name_zona = $ins_z->name_zone;
 							}
                         }
                     }
 					$output.="
-					<tr reserva-re='{$row['id_reservation']}' agency='{$row['id_agency']}' code-invoice={$row['code_invoice']} reserva-con={$row['id_conciliation']}>
+					<tr reserva-re='{$row['id_reservation']}' agency='{$row['id_agency']}' code-invoice={$row['code_invoice']} reserva-con={$row['id_conciliation']} sc={$row['status']}>
 							<td>{$row['code_invoice']}</td>
                             <td class='hidden-sm'>{$new_nameagency}</td>
 							<td>{$row['name_client']} {$row['last_name']} {$row['mother_lastname']}</td>
@@ -335,7 +337,7 @@
 							<td class='hidden-sm'>{$row['number_adults']}</td>
 							<td>{$methodpayment}</td>
 							<td> {$row['total_cost']}</td>
-							<td class='hidden-sm'> {$row['total_cost_commision']}</td>
+							<td class='hidden-sm'> <a href='#' class='load_expenses' data-toggle='modal' data-target='#expensesModal'> {$total_exp}</a></td>
 							<td> {$new_amount_total} </td>
 							<td>{$currency}</td>
 							<td>{$newstatus}</td>

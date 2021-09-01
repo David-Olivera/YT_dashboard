@@ -118,6 +118,12 @@ if (isset($_SESSION['id_user'])) {
                                 <input type="text" id="telefono_agencia" placeholder="Teléfono de agencia" class="form-control">
                             </div>
                             <div class="form-group">
+                                <input type="text" id="name_contact_agencia" placeholder="Nombre de contacto" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="last_contact_agencia" placeholder="Apellidos de contacto" class="form-control">
+                            </div>
+                            <div class="form-group">
                                 <input type="text" id="usuario_agencia" placeholder="Nombre de Usuario" class="form-control" >
                             </div>
                             <div class="form-group">
@@ -155,6 +161,12 @@ if (isset($_SESSION['id_user'])) {
                             </div>
                             <div class="form-group">
                                 <input type="text" id="telefono_agencia_edit" placeholder="Teléfono de agencia" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="name_contact_agencia_edit" placeholder="Nombre de contacto" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="last_contact_agencia_edit" placeholder="Apellidos de contacto" class="form-control">
                             </div>
                             <div class="form-group">
                                 <input type="text" id="usuario_agencia_edit" placeholder="Nombre de Usuario" class="form-control" >

@@ -5,7 +5,7 @@
 	require_once('../config/conexion.php');
 	session_start();
 	$id_role = $_SESSION['id_role'];
-	$limit = 80;
+	$limit = 20;
 
 	if (isset($_POST['page_no'])) {
 		$page_no = $_POST['page_no'];
@@ -33,6 +33,7 @@
 								<th>Agencia</th>
 								<th  class='hidden-sm'>Email Contacto</th>
 								<th  class='hidden-sm'>Email Pagos</th>
+								<th style='width:150px;'  class='hidden-sm'>Contacto</th>
 								<th>Usuario</th>
 								<th>Teléfono</th>
 								<th class='hidden-sm'>Registro</th>
@@ -53,10 +54,12 @@
 								<th></th>
 								</tr>
 						</thead>
-						<tbody>";
+						<tbody>
+			";
 			while ($row = mysqli_fetch_assoc($result)) {
 				$query2 = "SELECT * FROM agency_payment WHERE id_agency = {$row['id_agency']}";
 				$result2 =  mysqli_query($con,$query2);
+				
 				$sql = "SELECT * FROM agencies_docs as AD inner join agencies as A on AD.id_Agency = A.id_agency WHERE AD.id_agency = {$row['id_agency']};";
 				$result_sql = mysqli_query($con, $sql);
 				$ins_sql = mysqli_fetch_object($result_sql);
@@ -97,6 +100,7 @@
 											<td>{$row['name_agency']}</td>
 											<td  class='hidden-sm'><a href='#' id='copy_email' title='{$row['email_agency']}'>{$newemail}</a></td>
 											<td  class='hidden-sm'><a href='#' id='copy_email_pay' title='{$row['email_pay_agency']}'>{$newemailpay}</a></td>
+											<td style='width:150px;' class='hidden-sm'>{$row['name_contact']} {$row['last_name_contact']}</td>
 											<td id='usuario'>{$row['username']}</td>
 											<td  >{$row['phone_agency']}</td>
 											<td class='hidden-sm'>{$row['register_date']}</td>

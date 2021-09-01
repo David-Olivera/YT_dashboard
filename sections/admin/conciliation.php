@@ -384,6 +384,7 @@ if (isset($_SESSION['id_user'])) {
                                             <select class="custom-select custom-select-sm " id="inp_type_conciliation" name="inp_type_conciliation">
                                                 <option value="1">Conciliados</option>
                                                 <option value="0">No Conciliados</option>
+                                                <option value="3">Conciliados y No Conciliados</option>
                                             </select>
                                         </div>
                                     </div>
@@ -497,6 +498,36 @@ if (isset($_SESSION['id_user'])) {
 				</div>
 			</div>
 		</div>
+    </div>
+    <!-- Modal expenses -->
+    <div class="modal fade" id="expensesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Depositos</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class=" d-flex justify-content-center">
+                        <div class="alert alert-dismissible w-100" id="alert-msg-expense">
+                                <p style="margin-bottom: 0;">
+                                    <input id="text-msg-expense" type="text" class="sinbordefond w-100 form-control-plaintext" value="">
+                                </p>   
+                                 
+                        </div>
+                    </div>
+                    <div id="content_expenses">
+
+                    </div>
+                </div>
+                <!-- <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div> -->
+            </div>
+        </div>
     </div>
     <?php
     include('../include/scrips.php');
